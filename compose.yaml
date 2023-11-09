@@ -1,0 +1,14 @@
+services:
+  db:
+    restart: always
+    build:
+      context: ./
+      dockerfile: db/Dockerfile
+    ports:
+      - 27018:27017
+    volumes:
+      - type: bind
+        source: .db-data
+        target: /data/db
+volumes:
+  .db-data:
