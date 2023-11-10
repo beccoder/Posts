@@ -9,12 +9,20 @@ import (
 func (h *Handler) signUpAuthor(c *gin.Context) {
 	var input Blogs.User
 	if err := c.BindJSON(&input); err != nil {
-		newErrorResponse(c, http.StatusBadRequest, "Error with user input", err)
+		newErrorResponse(c, http.StatusBadRequest, "Error with input", err)
 		return
 	}
 	input.Role = "author"
 	id, err := h.services.Authorization.CreateUser(input)
 	if err != nil {
+		if err.Error() == "already registered" {
+			newErrorResponse(c, http.StatusInternalServerError, "Author with provided data is already registered", err)
+			return
+		}
+		if err.Error() == "username exists" {
+			newErrorResponse(c, http.StatusInternalServerError, "Username exists", err)
+			return
+		}
 		newErrorResponse(c, http.StatusInternalServerError, "Error while creating author", err) //Recheck
 		return
 	}
@@ -33,6 +41,15 @@ func (h *Handler) signUpUser(c *gin.Context) {
 	input.Role = "user"
 	id, err := h.services.Authorization.CreateUser(input)
 	if err != nil {
+		if err.Error() == "already registered" {
+			newErrorResponse(c, http.StatusInternalServerError, "User with provided data is already registered", err)
+			return
+		}
+		if err.Error() == "username exists" {
+			newErrorResponse(c, http.StatusInternalServerError, "Username exists", err)
+			return
+		}
+
 		newErrorResponse(c, http.StatusInternalServerError, "Error while creating user", err) //Recheck
 		return
 	}
@@ -54,7 +71,7 @@ func (h *Handler) signInAuthor(c *gin.Context) {
 		return
 	}
 
-	token, err := h.services.Authorization.GenerateToken(input.Username, input.Password)
+	token, err := h.services.GenerateToken(input.Username, input.Password, "author")
 	if err != nil {
 		newErrorResponse(c, http.StatusInternalServerError, "Invalid username or password", err)
 		return
@@ -84,8 +101,12 @@ func (h *Handler) signInUser(c *gin.Context) {
 		return
 	}
 
-	token, err := h.services.Authorization.GenerateToken(input.Username, input.Password)
+	token, err := h.services.GenerateToken(input.Username, input.Password, "user")
 	if err != nil {
+		if err.Error() == "Invalid role" {
+			newErrorResponse(c, http.StatusInternalServerError, "Invalid role", err)
+			return
+		}
 		newErrorResponse(c, http.StatusInternalServerError, "Invalid username or password", err)
 		return
 	}

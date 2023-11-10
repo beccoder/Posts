@@ -3,6 +3,8 @@ package handler
 import (
 	"errors"
 	"github.com/gin-gonic/gin"
+	"go.mongodb.org/mongo-driver/bson/primitive"
+	"log"
 	"net/http"
 	"strings"
 )
@@ -32,7 +34,7 @@ func (h *Handler) middlewareAuthor(c *gin.Context) {
 		return
 	}
 	if role != "author" {
-		newErrorResponse(c, http.StatusUnauthorized, "User is not admin", errors.New("User is not admin"))
+		newErrorResponse(c, http.StatusUnauthorized, "User is not author", errors.New("User is not author"))
 		return
 
 	}
@@ -60,4 +62,63 @@ func (h *Handler) middleware(c *gin.Context) {
 	}
 	c.Set(userCtxId, userId)
 	c.Set(userCtxRole, role)
+}
+
+func (h *Handler) getUserId(c *gin.Context) (primitive.ObjectID, error) {
+	id, ok := c.Get(userCtxId)
+	if !ok {
+		return primitive.ObjectID{}, errors.New("id not found")
+	}
+
+	idTypeObjectId, ok := id.(primitive.ObjectID)
+	if !ok {
+		return primitive.ObjectID{}, errors.New("id not found")
+	}
+
+	return idTypeObjectId, nil
+}
+
+func getUserRole(c *gin.Context) (string, error) {
+	role, ok := c.Get(userCtxRole)
+	if !ok {
+		newErrorResponse(c, http.StatusInternalServerError, "role not found", errors.New("role not found"))
+		return "", errors.New("role not found")
+	}
+	roleStr, ok := role.(string)
+	if !ok {
+		newErrorResponse(c, http.StatusInternalServerError, "role is invalid of type", errors.New("role is invalid of type"))
+		return "", errors.New("role not found")
+	}
+	return roleStr, nil
+}
+
+func (h *Handler) checkOwnership(c *gin.Context) {
+	commentId, err := primitive.ObjectIDFromHex(c.Param("comment_id"))
+	if err != nil {
+		newErrorResponse(c, http.StatusBadRequest, "Invalid comment_id param", err)
+		return
+	}
+	userId, err := h.getUserId(c)
+	if err != nil {
+		newErrorResponse(c, http.StatusInternalServerError, "id not found", err)
+		return
+	}
+
+	// check for ownership
+	comment, err := h.services.GetCommentById(commentId)
+	if err != nil {
+		if err.Error() == "no comments exist" {
+			newErrorResponse(c, http.StatusInternalServerError, "No comments found", err)
+			return
+		}
+		newErrorResponse(c, http.StatusInternalServerError, "Error in getting comment", err)
+		return
+	}
+	if userId.String() != comment.CommentedById.String() {
+		newErrorResponse(c, http.StatusInternalServerError, "No access to update or delete comment", err)
+		return
+	}
+	log.Println("HHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHH")
+	log.Println(userId)
+	log.Println(comment.CommentedById)
 }

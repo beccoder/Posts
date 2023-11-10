@@ -45,17 +45,23 @@ func (s *AuthService) CreateUser(input Blogs.User) (primitive.ObjectID, error) {
 	}
 	for _, user := range users {
 		if input.Email == user.Email && input.Role == user.Role {
-			return primitive.ObjectID{}, errors.New("this email is already registered")
+			return primitive.ObjectID{}, errors.New("already registered")
+		}
+		if input.Username == user.Username {
+			return primitive.ObjectID{}, errors.New("username exists")
 		}
 	}
 	input.Password = generatePasswordHash(input.Password)
 	return s.repo.CreateUser(input)
 }
 
-func (s *AuthService) GenerateToken(login, password string) (string, error) {
+func (s *AuthService) GenerateToken(login, password, role string) (string, error) {
 	user, err := s.repo.GetUser(login, generatePasswordHash(password))
 	if err != nil {
 		return "", err
+	}
+	if user.Role != role {
+		return "", errors.New("Invalid role")
 	}
 
 	token := jwt.NewWithClaims(jwt.SigningMethodHS256, &tokenClaims{

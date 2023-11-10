@@ -20,12 +20,13 @@ func NewAuthRepo(db *mongo.Client) *AuthRepo {
 
 func (r *AuthRepo) CreateUser(input Blogs.User) (primitive.ObjectID, error) {
 	input.CreatedAt = primitive.Timestamp{T: uint32(time.Now().Unix())}
-	coll := r.db.Database("blogs").Collection("users")
+	collUsers := r.db.Database("blogs").Collection("users")
 
-	result, err := coll.InsertOne(context.TODO(), input)
+	result, err := collUsers.InsertOne(context.TODO(), input)
 	if err != nil {
 		return primitive.ObjectID{}, err
 	}
+
 	return result.InsertedID.(primitive.ObjectID), nil
 }
 
@@ -48,8 +49,7 @@ func (r *AuthRepo) GetUser(username, password string) (Blogs.User, error) {
 	err := coll.FindOne(context.TODO(), bson.D{{"username", username}, {"password", password}}).Decode(&user)
 	if err != nil {
 		if errors.Is(err, mongo.ErrNoDocuments) {
-			// can handle if needed
-			return Blogs.User{}, err
+			return Blogs.User{}, errors.New("invalid username or password")
 		}
 		return Blogs.User{}, err
 	}

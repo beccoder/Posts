@@ -28,7 +28,7 @@ func InitSchemas(client *mongo.Client) error {
 	usersColl := client.Database("blogs").Collection("users")
 	indexModel := mongo.IndexModel{
 		Keys: bson.M{
-			"user_name": 1,
+			"username": 1,
 		},
 		Options: options.Index().SetUnique(true),
 	}
