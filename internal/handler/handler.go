@@ -57,7 +57,6 @@ func (h *Handler) InitRoutes() *gin.Engine {
 			likes.POST("/", h.createLike)
 			likes.GET("/", h.getAllLikes)
 			likes.GET("/:like_id", h.getLikeById)
-			//likes.PUT("/:like_id", h.updateLikeById)
 			likes.DELETE("/:like_id", h.deleteLike)
 		}
 	}

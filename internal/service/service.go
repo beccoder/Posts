@@ -1,12 +1,17 @@
 package service
 
 import (
+	"Blogs"
 	"Blogs/internal/repository"
+	"go.mongodb.org/mongo-driver/bson/primitive"
 )
 
 type Authorization interface {
 	//sign-in
-	//sign-up
+	GenerateToken(login, password string) (string, error)
+	CreateUser(input Blogs.User) (primitive.ObjectID, error)
+	GetUserRole(login, password string) (string, error)
+	ParseToken(accessToken string) (primitive.ObjectID, string, error)
 }
 
 type Posts interface {

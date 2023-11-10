@@ -2,18 +2,40 @@ package repository
 
 import (
 	"context"
-	"fmt"
+	"go.mongodb.org/mongo-driver/bson"
 	"go.mongodb.org/mongo-driver/mongo"
 	"go.mongodb.org/mongo-driver/mongo/options"
+	"go.mongodb.org/mongo-driver/mongo/readpref"
 )
 
 func ConnectMongoDB(EnvMongoURI string) (*mongo.Client, error) {
-	clientOptions := options.Client().ApplyURI(EnvMongoURI)
+	credential := options.Credential{
+		Username: "admin",
+		Password: "qwerty",
+	}
+	clientOptions := options.Client().ApplyURI(EnvMongoURI).SetAuth(credential)
 	client, err := mongo.Connect(context.TODO(), clientOptions)
 	if err != nil {
 		return nil, err
 	}
-	fmt.Println("Connected to MongoDB!")
-	//collection := client.Database("go_rest_api").Collection("books")
+	if err := client.Ping(context.TODO(), readpref.Primary()); err != nil {
+		return nil, err
+	}
 	return client, nil
+}
+
+func InitSchemas(client *mongo.Client) error {
+	usersColl := client.Database("blogs").Collection("users")
+	indexModel := mongo.IndexModel{
+		Keys: bson.M{
+			"user_name": 1,
+		},
+		Options: options.Index().SetUnique(true),
+	}
+	indexView := usersColl.Indexes()
+	_, err := indexView.CreateOne(context.TODO(), indexModel)
+	if err != nil {
+		return err
+	}
+	return nil
 }
