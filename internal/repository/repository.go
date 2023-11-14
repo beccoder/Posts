@@ -27,6 +27,8 @@ type Posts interface {
 	GetCommentById(commentId primitive.ObjectID) (Blogs.Comment, error)
 	UpdateComment(commentId primitive.ObjectID, input Blogs.CommentUpdate) error
 	DeleteComment(commentId primitive.ObjectID) error
+	//Likes
+	AddLike(postId primitive.ObjectID, likedById primitive.ObjectID) error
 }
 
 type Repository struct {

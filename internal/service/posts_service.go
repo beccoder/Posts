@@ -57,3 +57,7 @@ func (p *PostsService) UpdateComment(commentId primitive.ObjectID, input Blogs.C
 func (p *PostsService) DeleteComment(commentId primitive.ObjectID) error {
 	return p.repo.DeleteComment(commentId)
 }
+
+func (p *PostsService) AddLike(postId primitive.ObjectID, likedById primitive.ObjectID) error {
+	return p.repo.AddLike(postId, likedById)
+}

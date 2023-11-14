@@ -13,5 +13,4 @@ type User struct {
 	Bio       string              `json:"bio,omitempty" bson:"bio,omitempty"`
 	CreatedAt primitive.Timestamp `json:"created_at,omitempty" bson:"created_at,omitempty"`
 	UpdatedAt primitive.Timestamp `json:"updated_at,omitempty" bson:"updated_at,omitempty"`
-	DeletedAt primitive.Timestamp `json:"deleted_at,omitempty" bson:"deleted_at,omitempty"`
 }

@@ -231,7 +231,30 @@ func (h *Handler) deleteComment(c *gin.Context) {
 	c.JSON(http.StatusOK, statusResponse{"ok"})
 }
 
-func (h *Handler) createLike(c *gin.Context) {}
+func (h *Handler) addLike(c *gin.Context) {
+	userId, err := h.getUserId(c)
+	if err != nil {
+		newErrorResponse(c, http.StatusInternalServerError, "id not found", err)
+		return
+	}
+	postId, err := primitive.ObjectIDFromHex(c.Param("post_id"))
+	if err != nil {
+		newErrorResponse(c, http.StatusBadRequest, "Invalid id param", err)
+		return
+	}
+
+	err = h.services.AddLike(postId, userId)
+	if err != nil {
+		if err.Error() == "already liked" {
+			newErrorResponse(c, http.StatusInternalServerError, "Already liked", err)
+			return
+		}
+		newErrorResponse(c, http.StatusInternalServerError, "Error while liking post", err)
+		return
+	}
+
+	c.JSON(http.StatusOK, statusResponse{"ok"})
+}
 
 func (h *Handler) getAllLikes(c *gin.Context) {}
 

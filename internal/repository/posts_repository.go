@@ -170,3 +170,33 @@ func (p *PostsRepo) DeleteComment(commentId primitive.ObjectID) error {
 	}
 	return nil
 }
+
+func (p *PostsRepo) AddLike(postId primitive.ObjectID, likedById primitive.ObjectID) error {
+	post, err := p.GetPostById(postId)
+	if err != nil {
+		return err
+	}
+	if post.Likes != nil {
+		for _, like := range post.Likes {
+			if like.LikedById == likedById {
+				return errors.New("already liked")
+			}
+		}
+	}
+
+	filter := bson.D{{"_id", postId}}
+	update := bson.D{{"$push", bson.D{{"likes", Blogs.Like{
+		LikedById: likedById,
+		CreatedAt: primitive.Timestamp{T: uint32(time.Now().Unix())},
+	}}}}}
+	collPosts := p.db.Database("blogs").Collection("posts")
+
+	result, err := collPosts.UpdateOne(context.TODO(), filter, update)
+	if err != nil {
+		return err
+	}
+	if result.ModifiedCount == 0 {
+		return errors.New("like is not added")
+	}
+	return nil
+}

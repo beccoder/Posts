@@ -8,19 +8,16 @@ type PostUpdate struct {
 }
 
 type Post struct {
-	Id            primitive.ObjectID  `json:"_id,omitempty" bson:"_id,omitempty"`
-	AuthorsId     primitive.ObjectID  `json:"authors_id" bson:"authors_id"`
-	Title         string              `json:"title" bson:"title" binding:"required"`
-	Text          string              `json:"text" bson:"text" binding:"required"`
-	Likes         []Like              `json:"likes" bson:"likes"`
-	CommentsCount int                 `json:"comments_count" bson:"comments_count"`
-	CreatedAt     primitive.Timestamp `json:"created_at,omitempty" bson:"created_at,omitempty"`
-	UpdatedAt     primitive.Timestamp `json:"updated_at,omitempty" bson:"updated_at,omitempty"`
-	DeletedAt     primitive.Timestamp `json:"deleted_at,omitempty" bson:"deleted_at,omitempty"`
+	Id        primitive.ObjectID  `json:"_id,omitempty" bson:"_id,omitempty"`
+	AuthorsId primitive.ObjectID  `json:"authors_id" bson:"authors_id"`
+	Title     string              `json:"title" bson:"title" binding:"required"`
+	Text      string              `json:"text" bson:"text" binding:"required"`
+	Likes     []Like              `json:"likes,omitempty" bson:"likes,omitempty"`
+	CreatedAt primitive.Timestamp `json:"created_at,omitempty" bson:"created_at,omitempty"`
+	UpdatedAt primitive.Timestamp `json:"updated_at,omitempty" bson:"updated_at,omitempty"`
 }
 
 type Like struct {
-	Id        primitive.ObjectID  `json:"_id,omitempty" bson:"_id,omitempty"`
 	LikedById primitive.ObjectID  `json:"liked_by_id" bson:"liked_by_id" binding:"required"`
 	CreatedAt primitive.Timestamp `json:"created_at,omitempty" bson:"created_at,omitempty"`
 }
@@ -38,5 +35,4 @@ type Comment struct {
 	Comment       string              `json:"comment" bson:"comment" binding:"required"`
 	CreatedAt     primitive.Timestamp `json:"created_at,omitempty" bson:"created_at,omitempty"`
 	UpdatedAt     primitive.Timestamp `json:"updated_at,omitempty" bson:"updated_at,omitempty"`
-	DeletedAt     primitive.Timestamp `json:"deleted_at,omitempty" bson:"deleted_at,omitempty"`
 }
