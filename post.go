@@ -13,13 +13,13 @@ type Post struct {
 	Title     string              `json:"title" bson:"title" binding:"required"`
 	Text      string              `json:"text" bson:"text" binding:"required"`
 	Likes     []Like              `json:"likes,omitempty" bson:"likes,omitempty"`
-	CreatedAt primitive.Timestamp `json:"created_at,omitempty" bson:"created_at,omitempty"`
-	UpdatedAt primitive.Timestamp `json:"updated_at,omitempty" bson:"updated_at,omitempty"`
+	CreatedAt primitive.Timestamp `json:"-" bson:"created_at,omitempty"`
+	UpdatedAt primitive.Timestamp `json:"-" bson:"updated_at,omitempty"`
 }
 
 type Like struct {
 	LikedById primitive.ObjectID  `json:"liked_by_id" bson:"liked_by_id" binding:"required"`
-	CreatedAt primitive.Timestamp `json:"created_at,omitempty" bson:"created_at,omitempty"`
+	CreatedAt primitive.Timestamp `json:"-" bson:"created_at,omitempty"`
 }
 
 type CommentUpdate struct {
@@ -33,6 +33,6 @@ type Comment struct {
 	CommentedById primitive.ObjectID  `json:"commented_by_id" bson:"commented_by_id"`
 	ReplyPostId   primitive.ObjectID  `json:"reply_post_id,omitempty" bson:"reply_post_id,omitempty"`
 	Comment       string              `json:"comment" bson:"comment" binding:"required"`
-	CreatedAt     primitive.Timestamp `json:"created_at,omitempty" bson:"created_at,omitempty"`
-	UpdatedAt     primitive.Timestamp `json:"updated_at,omitempty" bson:"updated_at,omitempty"`
+	CreatedAt     primitive.Timestamp `json:"-" bson:"created_at,omitempty"`
+	UpdatedAt     primitive.Timestamp `json:"-" bson:"updated_at,omitempty"`
 }

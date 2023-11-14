@@ -11,6 +11,6 @@ type User struct {
 	Password  string              `json:"password" bson:"password" binding:"required"`
 	Email     string              `json:"email" bson:"email" binding:"required"`
 	Bio       string              `json:"bio,omitempty" bson:"bio,omitempty"`
-	CreatedAt primitive.Timestamp `json:"created_at,omitempty" bson:"created_at,omitempty"`
-	UpdatedAt primitive.Timestamp `json:"updated_at,omitempty" bson:"updated_at,omitempty"`
+	CreatedAt primitive.Timestamp `json:"-" bson:"created_at,omitempty"`
+	UpdatedAt primitive.Timestamp `json:"-" bson:"updated_at,omitempty"`
 }

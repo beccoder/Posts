@@ -2,6 +2,7 @@ package main
 
 import (
 	"Blogs"
+	_ "Blogs/docs"
 	"Blogs/internal/handler"
 	"Blogs/internal/repository"
 	"Blogs/internal/service"
@@ -14,6 +15,16 @@ import (
 	"syscall"
 )
 
+// @title Blogs Server API
+// @version 1.0
+// @description Blogs Server in Go using Gin framework
+
+// @host localhost:8086
+// @BasePath /
+
+// @securityDefinitions.apikey ApiKeyAuth
+// @in header
+// @name Authorization
 func main() {
 	if err := initConfig(); err != nil {
 		log.Fatal(err)

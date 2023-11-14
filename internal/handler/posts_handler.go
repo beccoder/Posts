@@ -7,12 +7,27 @@ import (
 	"net/http"
 )
 
+// createPost godoc
+// @Summary 			Create a new Post
+// @Security 			ApiKeyAuth
+// @Tags 				Posts
+// @Description 		Create a new Post with provided data
+// @ID 					create-post
+// @Accept 				json
+// @Produce 			json
+// @Param 				input body Blogs.Post true "post data"
+// @Success 			200 {integer} integer 1
+// @Failure 			400,404 {object} errorResponse
+// @Failure				500 {object} errorResponse
+// @Failure 			default {object} errorResponse
+// @Router 				/posts [post]
 func (h *Handler) createPost(c *gin.Context) {
 	userId, err := h.getUserId(c)
 	if err != nil {
 		newErrorResponse(c, http.StatusInternalServerError, "id not found", err)
 		return
 	}
+
 	var input Blogs.Post
 	if err := c.BindJSON(&input); err != nil {
 		newErrorResponse(c, http.StatusBadRequest, "Invalid type of input", err)
@@ -35,6 +50,19 @@ type getAllPostsResponse struct {
 	Data []Blogs.Post `json:"data"`
 }
 
+// getAllPosts godoc
+// @Summary 			Get All Posts
+// @Security 			ApiKeyAuth
+// @Tags 				Posts
+// @Description 		Get a list of all posts
+// @ID 					get-posts
+// @Accept 				json
+// @Produce 			json
+// @Success 			200 {object} getAllPostsResponse
+// @Failure 			400,404 {object} errorResponse
+// @Failure				500 {object} errorResponse
+// @Failure 			default {object} errorResponse
+// @Router 				/posts [get]
 func (h *Handler) getAllPosts(c *gin.Context) {
 	posts, err := h.services.GetAllPosts()
 	if err != nil {
@@ -47,6 +75,19 @@ func (h *Handler) getAllPosts(c *gin.Context) {
 	})
 }
 
+// getMyAllPosts godoc
+// @Summary 			Get All My Posts
+// @Security 			ApiKeyAuth
+// @Tags 				Posts
+// @Description 		Get a list of all my posts
+// @ID 					get-my-posts
+// @Accept 				json
+// @Produce 			json
+// @Success 			200 {object} getAllPostsResponse
+// @Failure 			400,404 {object} errorResponse
+// @Failure				500 {object} errorResponse
+// @Failure 			default {object} errorResponse
+// @Router 				/posts/my [get]
 func (h *Handler) getMyAllPosts(c *gin.Context) {
 	userId, err := h.getUserId(c)
 	if err != nil {
@@ -64,6 +105,20 @@ func (h *Handler) getMyAllPosts(c *gin.Context) {
 	})
 }
 
+// getPostById godoc
+// @Summary 			Get a Post by ID
+// @Security 			ApiKeyAuth
+// @Tags 				Posts
+// @Description 		Get a single Post by providing its ID
+// @ID 					get-post
+// @Accept 				json
+// @Produce 			json
+// @Param 				post_id path string true "Post ID"
+// @Success 			200 {object} Blogs.Post
+// @Failure 			400,404 {object} errorResponse
+// @Failure				500 {object} errorResponse
+// @Failure 			default {object} errorResponse
+// @Router 				/posts/{post_id} [get]
 func (h *Handler) getPostById(c *gin.Context) {
 	postId, err := primitive.ObjectIDFromHex(c.Param("post_id"))
 	if err != nil {
@@ -84,6 +139,21 @@ func (h *Handler) getPostById(c *gin.Context) {
 	c.JSON(http.StatusOK, post)
 }
 
+// updatePost godoc
+// @Summary 			Update an existing Post data
+// @Security 			ApiKeyAuth
+// @Tags 				Posts
+// @Description 		Update an existing Post data with new data
+// @ID 					update-post
+// @Accept 				json
+// @Produce 			json
+// @Param 				post_id path string true "Post ID"
+// @Param 				new_input body Blogs.PostUpdate true "new post info"
+// @Success 			200 {object} statusResponse
+// @Failure 			400,404 {object} errorResponse
+// @Failure				500 {object} errorResponse
+// @Failure 			default {object} errorResponse
+// @Router 				/posts/{post_id} [put]
 func (h *Handler) updatePost(c *gin.Context) {
 	postId, err := primitive.ObjectIDFromHex(c.Param("post_id"))
 	if err != nil {
@@ -106,6 +176,20 @@ func (h *Handler) updatePost(c *gin.Context) {
 	c.JSON(http.StatusOK, statusResponse{"ok"})
 }
 
+// deletePost godoc
+// @Summary				Delete an existing Post
+// @Security 			ApiKeyAuth
+// @Tags 				Posts
+// @Description			Delete an existing Post by ID
+// @ID 					delete-post
+// @Accept 				json
+// @Produce 			json
+// @Param 				post_id path string true "Post ID"
+// @Success 			200 {object} statusResponse
+// @Failure 			400,404 {object} errorResponse
+// @Failure				500 {object} errorResponse
+// @Failure 			default {object} errorResponse
+// @Router 				/posts/{post_id} [delete]
 func (h *Handler) deletePost(c *gin.Context) {
 	postId, err := primitive.ObjectIDFromHex(c.Param("post_id"))
 	if err != nil {
@@ -122,6 +206,20 @@ func (h *Handler) deletePost(c *gin.Context) {
 	c.JSON(http.StatusOK, statusResponse{"ok"})
 }
 
+// createComment godoc
+// @Summary 			Create a new Comment
+// @Security 			ApiKeyAuth
+// @Tags 				Posts
+// @Description 		Create a new Comment with provided data
+// @ID 					comment-on-post
+// @Accept 				json
+// @Produce 			json
+// @Param 				input body Blogs.Comment true "comment data"
+// @Success 			200 {integer} integer 1
+// @Failure 			400,404 {object} errorResponse
+// @Failure				500 {object} errorResponse
+// @Failure 			default {object} errorResponse
+// @Router 				/posts/{post_id}/comments [post]
 func (h *Handler) createComment(c *gin.Context) {
 	userId, err := h.getUserId(c)
 	if err != nil {
@@ -156,6 +254,19 @@ type getAllCommentsResponse struct {
 	Data []Blogs.Comment `json:"data"`
 }
 
+// getAllComments godoc
+// @Summary 			Get All Comments
+// @Security 			ApiKeyAuth
+// @Tags 				Posts
+// @Description 		Get a list of all comments related to this post
+// @ID 					get-post-comments
+// @Accept 				json
+// @Produce 			json
+// @Success 			200 {object} getAllCommentsResponse
+// @Failure 			400,404 {object} errorResponse
+// @Failure				500 {object} errorResponse
+// @Failure 			default {object} errorResponse
+// @Router 				/posts/{post_id}/comments [get]
 func (h *Handler) getAllComments(c *gin.Context) {
 	postId, err := primitive.ObjectIDFromHex(c.Param("post_id"))
 	if err != nil {
@@ -173,6 +284,21 @@ func (h *Handler) getAllComments(c *gin.Context) {
 	})
 }
 
+// getCommentById godoc
+// @Summary 			Get a Comment by ID
+// @Security 			ApiKeyAuth
+// @Tags 				Posts
+// @Description 		Get a single Comment of the post by providing its ID
+// @ID 					get-post-comment
+// @Accept 				json
+// @Produce 			json
+// @Param 				post_id path string true "Post ID"
+// @Param 				comment_id path string true "Comment ID"
+// @Success 			200 {object} Blogs.Comment
+// @Failure 			400,404 {object} errorResponse
+// @Failure				500 {object} errorResponse
+// @Failure 			default {object} errorResponse
+// @Router 				/posts/{post_id}/comments/{comment_id} [get]
 func (h *Handler) getCommentById(c *gin.Context) {
 	commentId, err := primitive.ObjectIDFromHex(c.Param("comment_id"))
 	if err != nil {
@@ -193,6 +319,22 @@ func (h *Handler) getCommentById(c *gin.Context) {
 	c.JSON(http.StatusOK, comment)
 }
 
+// updateComment godoc
+// @Summary 			Update an existing Comment data
+// @Security 			ApiKeyAuth
+// @Tags 				Posts
+// @Description 		Update an existing Comment data of the post with new data
+// @ID 					update-post-comment
+// @Accept 				json
+// @Produce 			json
+// @Param 				post_id path string true "Post ID"
+// @Param 				comment_id path string true "Comment ID"
+// @Param 				new_input body Blogs.CommentUpdate true "new comment data"
+// @Success 			200 {object} statusResponse
+// @Failure 			400,404 {object} errorResponse
+// @Failure				500 {object} errorResponse
+// @Failure 			default {object} errorResponse
+// @Router 				/posts/{post_id}/comments/{comment_id} [put]
 func (h *Handler) updateComment(c *gin.Context) {
 	commentId, err := primitive.ObjectIDFromHex(c.Param("comment_id"))
 	if err != nil {
@@ -215,6 +357,21 @@ func (h *Handler) updateComment(c *gin.Context) {
 	c.JSON(http.StatusOK, statusResponse{"ok"})
 }
 
+// deleteComment godoc
+// @Summary				Delete an existing Comment of the post
+// @Security 			ApiKeyAuth
+// @Tags 				Posts
+// @Description			Delete an existing Comment of the post by ID
+// @ID 					delete-post-comment
+// @Accept 				json
+// @Produce 			json
+// @Param 				post_id path string true "Post ID"
+// @Param 				comment_id path string true "Comment ID"
+// @Success 			200 {object} statusResponse
+// @Failure 			400,404 {object} errorResponse
+// @Failure				500 {object} errorResponse
+// @Failure 			default {object} errorResponse
+// @Router 				/posts/{post_id}/comments/{comment_id} [delete]
 func (h *Handler) deleteComment(c *gin.Context) {
 	commentId, err := primitive.ObjectIDFromHex(c.Param("comment_id"))
 	if err != nil {
@@ -231,6 +388,19 @@ func (h *Handler) deleteComment(c *gin.Context) {
 	c.JSON(http.StatusOK, statusResponse{"ok"})
 }
 
+// likePost godoc
+// @Summary 			Like the post
+// @Security 			ApiKeyAuth
+// @Tags 				Posts
+// @Description 		Like the post
+// @ID 					like-post
+// @Accept 				json
+// @Produce 			json
+// @Success 			200 {object} statusResponse
+// @Failure 			400,404 {object} errorResponse
+// @Failure				500 {object} errorResponse
+// @Failure 			default {object} errorResponse
+// @Router 				/posts/{post_id}/like [post]
 func (h *Handler) likePost(c *gin.Context) {
 	userId, err := h.getUserId(c)
 	if err != nil {
@@ -256,6 +426,19 @@ func (h *Handler) likePost(c *gin.Context) {
 	c.JSON(http.StatusOK, statusResponse{"ok"})
 }
 
+// unlikePost godoc
+// @Summary 			Unlike the post
+// @Security 			ApiKeyAuth
+// @Tags 				Posts
+// @Description 		Unlike the post
+// @ID 					unlike-post
+// @Accept 				json
+// @Produce 			json
+// @Success 			200 {object} statusResponse
+// @Failure 			400,404 {object} errorResponse
+// @Failure				500 {object} errorResponse
+// @Failure 			default {object} errorResponse
+// @Router 				/posts/{post_id}/unlike [post]
 func (h *Handler) unlikePost(c *gin.Context) {
 	userId, err := h.getUserId(c)
 	if err != nil {
