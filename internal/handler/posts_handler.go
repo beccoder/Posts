@@ -215,7 +215,21 @@ func (h *Handler) updateComment(c *gin.Context) {
 	c.JSON(http.StatusOK, statusResponse{"ok"})
 }
 
-func (h *Handler) deleteComment(c *gin.Context) {}
+func (h *Handler) deleteComment(c *gin.Context) {
+	commentId, err := primitive.ObjectIDFromHex(c.Param("comment_id"))
+	if err != nil {
+		newErrorResponse(c, http.StatusBadRequest, "Invalid id param", err)
+		return
+	}
+
+	err = h.services.DeleteComment(commentId)
+	if err != nil {
+		newErrorResponse(c, http.StatusInternalServerError, "Error while deleting comment", err)
+		return
+	}
+
+	c.JSON(http.StatusOK, statusResponse{"ok"})
+}
 
 func (h *Handler) createLike(c *gin.Context) {}
 

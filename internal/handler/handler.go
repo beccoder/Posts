@@ -35,8 +35,12 @@ func (h *Handler) InitRoutes() *gin.Engine {
 	{
 		postsAuthor.GET("/my", h.getMyAllPosts)
 		postsAuthor.POST("/", h.createPost)
-		postsAuthor.PUT("/:post_id", h.updatePost)
-		postsAuthor.DELETE("/:post_id", h.deletePost)
+
+		myPostsAuthor := postsAuthor.Group("/:post_id", h.checkOwnershipPost)
+		{
+			myPostsAuthor.PUT("/", h.updatePost)
+			myPostsAuthor.DELETE("/", h.deletePost)
+		}
 	}
 
 	posts := router.Group("/posts", h.middleware)
@@ -49,8 +53,12 @@ func (h *Handler) InitRoutes() *gin.Engine {
 			comments.POST("/", h.createComment)
 			comments.GET("/", h.getAllComments)
 			comments.GET("/:comment_id", h.getCommentById)
-			comments.PUT("/:comment_id", h.updateComment, h.checkOwnership)
-			comments.DELETE("/:comment_id", h.deleteComment, h.checkOwnership)
+
+			myComments := comments.Group("/:comment_id", h.checkOwnershipComment)
+			{
+				myComments.PUT("/", h.updateComment)
+				myComments.DELETE("/", h.deleteComment)
+			}
 		}
 
 		likes := posts.Group("/:post_id/likes") // tricky case

@@ -4,7 +4,6 @@ import (
 	"errors"
 	"github.com/gin-gonic/gin"
 	"go.mongodb.org/mongo-driver/bson/primitive"
-	"log"
 	"net/http"
 	"strings"
 )
@@ -92,7 +91,7 @@ func getUserRole(c *gin.Context) (string, error) {
 	return roleStr, nil
 }
 
-func (h *Handler) checkOwnership(c *gin.Context) {
+func (h *Handler) checkOwnershipComment(c *gin.Context) {
 	commentId, err := primitive.ObjectIDFromHex(c.Param("comment_id"))
 	if err != nil {
 		newErrorResponse(c, http.StatusBadRequest, "Invalid comment_id param", err)
@@ -114,11 +113,38 @@ func (h *Handler) checkOwnership(c *gin.Context) {
 		newErrorResponse(c, http.StatusInternalServerError, "Error in getting comment", err)
 		return
 	}
-	if userId.String() != comment.CommentedById.String() {
-		newErrorResponse(c, http.StatusInternalServerError, "No access to update or delete comment", err)
+	if userId.Hex() != comment.CommentedById.Hex() {
+		newErrorResponse(c, http.StatusInternalServerError, "No access to update or delete comment", errors.New("no access"))
 		return
 	}
-	log.Println("HHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHH")
-	log.Println(userId)
-	log.Println(comment.CommentedById)
+}
+
+func (h *Handler) checkOwnershipPost(c *gin.Context) {
+	postId, err := primitive.ObjectIDFromHex(c.Param("post_id"))
+	if err != nil {
+		newErrorResponse(c, http.StatusBadRequest, "Invalid comment_id param", err)
+		return
+	}
+
+	userId, err := h.getUserId(c)
+	if err != nil {
+		newErrorResponse(c, http.StatusInternalServerError, "id not found", err)
+		return
+	}
+
+	// check for ownership
+	post, err := h.services.GetPostById(postId)
+	if err != nil {
+		if err.Error() == "no posts exist" {
+			newErrorResponse(c, http.StatusInternalServerError, "No comments found", err)
+			return
+		}
+		newErrorResponse(c, http.StatusInternalServerError, "Error in getting comment", err)
+		return
+	}
+
+	if userId.Hex() != post.AuthorsId.Hex() {
+		newErrorResponse(c, http.StatusInternalServerError, "No access to update or delete comment", errors.New("no access"))
+		return
+	}
 }

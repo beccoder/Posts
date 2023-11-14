@@ -9,3 +9,4 @@ rebuild_db:
 run:
 	go run cmd/main.go
 
+#denis isaev linter golang

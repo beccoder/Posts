@@ -26,6 +26,7 @@ type Posts interface {
 	GetAllComments(postId primitive.ObjectID) ([]Blogs.Comment, error)
 	GetCommentById(commentId primitive.ObjectID) (Blogs.Comment, error)
 	UpdateComment(commentId primitive.ObjectID, input Blogs.CommentUpdate) error
+	DeleteComment(commentId primitive.ObjectID) error
 }
 
 type Repository struct {

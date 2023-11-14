@@ -157,3 +157,16 @@ func (p *PostsRepo) UpdateComment(commentId primitive.ObjectID, input Blogs.Comm
 	_, err := collComments.UpdateOne(context.TODO(), bson.D{{"_id", commentId}}, update)
 	return err
 }
+
+func (p *PostsRepo) DeleteComment(commentId primitive.ObjectID) error {
+	collComments := p.db.Database("blogs").Collection("comments")
+	result, err := collComments.DeleteOne(context.TODO(), bson.D{{"_id", commentId}})
+
+	if err != nil {
+		return err
+	}
+	if result.DeletedCount == 0 {
+		return errors.New("no comments deleted")
+	}
+	return nil
+}

@@ -53,3 +53,7 @@ func (p *PostsService) GetCommentById(commentId primitive.ObjectID) (Blogs.Comme
 func (p *PostsService) UpdateComment(commentId primitive.ObjectID, input Blogs.CommentUpdate) error {
 	return p.repo.UpdateComment(commentId, input)
 }
+
+func (p *PostsService) DeleteComment(commentId primitive.ObjectID) error {
+	return p.repo.DeleteComment(commentId)
+}
