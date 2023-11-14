@@ -231,7 +231,7 @@ func (h *Handler) deleteComment(c *gin.Context) {
 	c.JSON(http.StatusOK, statusResponse{"ok"})
 }
 
-func (h *Handler) addLike(c *gin.Context) {
+func (h *Handler) likePost(c *gin.Context) {
 	userId, err := h.getUserId(c)
 	if err != nil {
 		newErrorResponse(c, http.StatusInternalServerError, "id not found", err)
@@ -256,8 +256,23 @@ func (h *Handler) addLike(c *gin.Context) {
 	c.JSON(http.StatusOK, statusResponse{"ok"})
 }
 
-func (h *Handler) getAllLikes(c *gin.Context) {}
+func (h *Handler) unlikePost(c *gin.Context) {
+	userId, err := h.getUserId(c)
+	if err != nil {
+		newErrorResponse(c, http.StatusInternalServerError, "id not found", err)
+		return
+	}
+	postId, err := primitive.ObjectIDFromHex(c.Param("post_id"))
+	if err != nil {
+		newErrorResponse(c, http.StatusBadRequest, "Invalid id param", err)
+		return
+	}
 
-func (h *Handler) getLikeById(c *gin.Context) {}
+	err = h.services.UnlikePost(postId, userId)
+	if err != nil {
+		newErrorResponse(c, http.StatusInternalServerError, "Error while unliking post", err)
+		return
+	}
 
-func (h *Handler) deleteLike(c *gin.Context) {}
+	c.JSON(http.StatusOK, statusResponse{"ok"})
+}

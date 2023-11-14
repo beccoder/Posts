@@ -61,3 +61,7 @@ func (p *PostsService) DeleteComment(commentId primitive.ObjectID) error {
 func (p *PostsService) AddLike(postId primitive.ObjectID, likedById primitive.ObjectID) error {
 	return p.repo.AddLike(postId, likedById)
 }
+
+func (p *PostsService) UnlikePost(postId primitive.ObjectID, likedById primitive.ObjectID) error {
+	return p.repo.UnlikePost(postId, likedById)
+}

@@ -61,12 +61,10 @@ func (h *Handler) InitRoutes() *gin.Engine {
 			}
 		}
 
-		likes := posts.Group("/:post_id/likes") // tricky case
+		likes := posts.Group("/:post_id")
 		{
-			likes.POST("/", h.addLike)
-			likes.GET("/", h.getAllLikes)
-			likes.GET("/:like_id", h.getLikeById)
-			likes.DELETE("/:like_id", h.deleteLike)
+			likes.POST("/like", h.likePost)
+			likes.POST("/unlike", h.unlikePost)
 		}
 	}
 	return router

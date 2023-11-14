@@ -29,6 +29,7 @@ type Posts interface {
 	DeleteComment(commentId primitive.ObjectID) error
 	//Likes
 	AddLike(postId primitive.ObjectID, likedById primitive.ObjectID) error
+	UnlikePost(postId primitive.ObjectID, likedById primitive.ObjectID) error
 }
 
 type Repository struct {

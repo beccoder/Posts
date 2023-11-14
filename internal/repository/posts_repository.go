@@ -200,3 +200,16 @@ func (p *PostsRepo) AddLike(postId primitive.ObjectID, likedById primitive.Objec
 	}
 	return nil
 }
+
+func (p *PostsRepo) UnlikePost(postId primitive.ObjectID, likedById primitive.ObjectID) error {
+	filter := bson.D{{"_id", postId}}
+	update := bson.D{{"$pull", bson.D{{"likes", bson.D{{"liked_by_id", likedById}}}}}}
+
+	collPosts := p.db.Database("blogs").Collection("posts")
+
+	_, err := collPosts.UpdateOne(context.TODO(), filter, update)
+	if err != nil {
+		return err
+	}
+	return nil
+}
