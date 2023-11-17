@@ -18,8 +18,8 @@ func NewAuthRepo(db *mongo.Client) *AuthRepo {
 	return &AuthRepo{db: db}
 }
 
-func (r *AuthRepo) CreateUser(input Blogs.User) (primitive.ObjectID, error) {
-	input.CreatedAt = primitive.Timestamp{T: uint32(time.Now().Unix())}
+func (r *AuthRepo) CreateUser(input Blogs.UserModel) (primitive.ObjectID, error) {
+	input.CreatedAt = time.Now()
 	collUsers := r.db.Database("blogs").Collection("users")
 
 	result, err := collUsers.InsertOne(context.TODO(), input)
@@ -30,8 +30,8 @@ func (r *AuthRepo) CreateUser(input Blogs.User) (primitive.ObjectID, error) {
 	return result.InsertedID.(primitive.ObjectID), nil
 }
 
-func (r *AuthRepo) GetAllUsers() ([]Blogs.User, error) {
-	var users []Blogs.User
+func (r *AuthRepo) GetAllUsers() ([]Blogs.UserResponse, error) {
+	var users []Blogs.UserResponse
 	coll := r.db.Database("blogs").Collection("users")
 	filter, err := coll.Find(context.TODO(), bson.M{})
 	if err != nil {
@@ -43,15 +43,15 @@ func (r *AuthRepo) GetAllUsers() ([]Blogs.User, error) {
 	return users, nil
 }
 
-func (r *AuthRepo) GetUser(username, password string) (Blogs.User, error) {
-	var user Blogs.User
+func (r *AuthRepo) GetUser(username, password string) (Blogs.UserResponse, error) {
+	var user Blogs.UserResponse
 	coll := r.db.Database("blogs").Collection("users")
 	err := coll.FindOne(context.TODO(), bson.D{{"username", username}, {"password", password}}).Decode(&user)
 	if err != nil {
 		if errors.Is(err, mongo.ErrNoDocuments) {
-			return Blogs.User{}, errors.New("invalid username or password")
+			return Blogs.UserResponse{}, errors.New("invalid username or password")
 		}
-		return Blogs.User{}, err
+		return Blogs.UserResponse{}, err
 	}
 	return user, nil
 }

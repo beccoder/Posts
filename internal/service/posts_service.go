@@ -14,23 +14,23 @@ func NewPostsService(repo repository.Posts) *PostsService {
 	return &PostsService{repo: repo}
 }
 
-func (p *PostsService) CreatePosts(post Blogs.Post) (primitive.ObjectID, error) {
+func (p *PostsService) CreatePosts(post Blogs.PostModel) (primitive.ObjectID, error) {
 	return p.repo.CreatePosts(post)
 }
 
-func (p *PostsService) GetMyAllPosts(userId primitive.ObjectID) ([]Blogs.Post, error) {
+func (p *PostsService) GetMyAllPosts(userId primitive.ObjectID) ([]Blogs.PostResponse, error) {
 	return p.repo.GetMyAllPosts(userId)
 }
 
-func (p *PostsService) GetAllPosts() ([]Blogs.Post, error) {
+func (p *PostsService) GetAllPosts() ([]Blogs.PostResponse, error) {
 	return p.repo.GetAllPosts()
 }
 
-func (p *PostsService) GetPostById(postId primitive.ObjectID) (Blogs.Post, error) {
+func (p *PostsService) GetPostById(postId primitive.ObjectID) (Blogs.PostResponse, error) {
 	return p.repo.GetPostById(postId)
 }
 
-func (p *PostsService) UpdatePost(postId primitive.ObjectID, input Blogs.PostUpdate) error {
+func (p *PostsService) UpdatePost(postId primitive.ObjectID, input Blogs.UpdatePostRequest) error {
 	return p.repo.UpdatePost(postId, input)
 }
 
@@ -38,19 +38,19 @@ func (p *PostsService) DeletePost(postId primitive.ObjectID) error {
 	return p.repo.DeletePost(postId)
 }
 
-func (p *PostsService) CreateComment(input Blogs.Comment) (primitive.ObjectID, error) {
+func (p *PostsService) CreateComment(input Blogs.CommentModel) (primitive.ObjectID, error) {
 	return p.repo.CreateComment(input)
 }
 
-func (p *PostsService) GetAllComments(postId primitive.ObjectID) ([]Blogs.Comment, error) {
+func (p *PostsService) GetAllComments(postId primitive.ObjectID) ([]Blogs.CommentResponse, error) {
 	return p.repo.GetAllComments(postId)
 }
 
-func (p *PostsService) GetCommentById(commentId primitive.ObjectID) (Blogs.Comment, error) {
+func (p *PostsService) GetCommentById(commentId primitive.ObjectID) (Blogs.CommentResponse, error) {
 	return p.repo.GetCommentById(commentId)
 }
 
-func (p *PostsService) UpdateComment(commentId primitive.ObjectID, input Blogs.CommentUpdate) error {
+func (p *PostsService) UpdateComment(commentId primitive.ObjectID, input Blogs.UpdateCommentRequest) error {
 	return p.repo.UpdateComment(commentId, input)
 }
 

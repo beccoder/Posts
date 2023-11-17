@@ -18,8 +18,8 @@ func NewPostsRepo(db *mongo.Client) *PostsRepo {
 	return &PostsRepo{db: db}
 }
 
-func (p *PostsRepo) CreatePosts(post Blogs.Post) (primitive.ObjectID, error) {
-	post.CreatedAt = primitive.Timestamp{T: uint32(time.Now().Unix())}
+func (p *PostsRepo) CreatePosts(post Blogs.PostModel) (primitive.ObjectID, error) {
+	post.CreatedAt = time.Now()
 	collPosts := p.db.Database("blogs").Collection("posts")
 
 	result, err := collPosts.InsertOne(context.TODO(), post)
@@ -30,57 +30,57 @@ func (p *PostsRepo) CreatePosts(post Blogs.Post) (primitive.ObjectID, error) {
 	return result.InsertedID.(primitive.ObjectID), nil
 }
 
-func (p *PostsRepo) GetMyAllPosts(userId primitive.ObjectID) ([]Blogs.Post, error) {
+func (p *PostsRepo) GetMyAllPosts(userId primitive.ObjectID) ([]Blogs.PostResponse, error) {
 	collPosts := p.db.Database("blogs").Collection("posts")
 	result, err := collPosts.Find(context.TODO(), bson.M{"authors_id": userId})
 
-	var posts []Blogs.Post
+	var posts []Blogs.PostResponse
 	if err = result.All(context.TODO(), &posts); err != nil {
 		return nil, err
 	}
 	return posts, nil
 }
 
-func (p *PostsRepo) GetAllPosts() ([]Blogs.Post, error) {
+func (p *PostsRepo) GetAllPosts() ([]Blogs.PostResponse, error) {
 	collPosts := p.db.Database("blogs").Collection("posts")
 	result, err := collPosts.Find(context.TODO(), bson.M{})
 
-	var posts []Blogs.Post
+	var posts []Blogs.PostResponse
 	if err = result.All(context.TODO(), &posts); err != nil {
 		return nil, err
 	}
 	return posts, nil
 }
 
-func (p *PostsRepo) GetPostById(postId primitive.ObjectID) (Blogs.Post, error) {
-	var post Blogs.Post
+func (p *PostsRepo) GetPostById(postId primitive.ObjectID) (Blogs.PostResponse, error) {
+	var post Blogs.PostResponse
 	collPosts := p.db.Database("blogs").Collection("posts")
 	err := collPosts.FindOne(context.TODO(), bson.D{{"_id", postId}}).Decode(&post)
 
 	if err != nil {
 		if errors.Is(err, mongo.ErrNoDocuments) {
-			return Blogs.Post{}, errors.New("no posts exist")
+			return Blogs.PostResponse{}, errors.New("no posts exist")
 		}
-		return Blogs.Post{}, err
+		return Blogs.PostResponse{}, err
 	}
 	return post, nil
 }
 
-func (p *PostsRepo) UpdatePost(postId primitive.ObjectID, input Blogs.PostUpdate) error {
+func (p *PostsRepo) UpdatePost(postId primitive.ObjectID, input Blogs.UpdatePostRequest) error {
 	var update bson.D
-	if input.Title != "" {
-		update = append(update, bson.E{"$set", bson.D{{"title", input.Title}}})
+	if input.Title != nil {
+		update = append(update, bson.E{"$set", bson.D{{"title", *input.Title}}})
 	}
 
-	if input.Text != "" {
-		update = append(update, bson.E{"$set", bson.D{{"text", input.Text}}})
+	if input.Text != nil {
+		update = append(update, bson.E{"$set", bson.D{{"text", *input.Text}}})
 	}
 
 	if len(update) == 0 {
 		return errors.New("no fields to update")
 	}
 
-	update = append(update, bson.E{"$set", bson.D{{"updated_at", primitive.Timestamp{T: uint32(time.Now().Unix())}}}})
+	update = append(update, bson.E{"$set", bson.D{{"updated_at", time.Now()}}})
 	collPosts := p.db.Database("blogs").Collection("posts")
 
 	_, err := collPosts.UpdateOne(context.TODO(), bson.D{{"_id", postId}}, update)
@@ -100,8 +100,8 @@ func (p *PostsRepo) DeletePost(postId primitive.ObjectID) error {
 	return nil
 }
 
-func (p *PostsRepo) CreateComment(input Blogs.Comment) (primitive.ObjectID, error) {
-	input.CreatedAt = primitive.Timestamp{T: uint32(time.Now().Unix())}
+func (p *PostsRepo) CreateComment(input Blogs.CommentModel) (primitive.ObjectID, error) {
+	input.CreatedAt = time.Now()
 	collPosts := p.db.Database("blogs").Collection("comments")
 
 	result, err := collPosts.InsertOne(context.TODO(), input)
@@ -112,46 +112,46 @@ func (p *PostsRepo) CreateComment(input Blogs.Comment) (primitive.ObjectID, erro
 	return result.InsertedID.(primitive.ObjectID), nil
 }
 
-func (p *PostsRepo) GetAllComments(postId primitive.ObjectID) ([]Blogs.Comment, error) {
+func (p *PostsRepo) GetAllComments(postId primitive.ObjectID) ([]Blogs.CommentResponse, error) {
 	collPosts := p.db.Database("blogs").Collection("comments")
 	result, err := collPosts.Find(context.TODO(), bson.M{"post_id": postId})
 
-	var comments []Blogs.Comment
+	var comments []Blogs.CommentResponse
 	if err = result.All(context.TODO(), &comments); err != nil {
 		return nil, err
 	}
 	return comments, nil
 }
 
-func (p *PostsRepo) GetCommentById(commentId primitive.ObjectID) (Blogs.Comment, error) {
-	var comment Blogs.Comment
+func (p *PostsRepo) GetCommentById(commentId primitive.ObjectID) (Blogs.CommentResponse, error) {
+	var comment Blogs.CommentResponse
 	collPosts := p.db.Database("blogs").Collection("comments")
 	err := collPosts.FindOne(context.TODO(), bson.D{{"_id", commentId}}).Decode(&comment)
 
 	if err != nil {
 		if errors.Is(err, mongo.ErrNoDocuments) {
-			return Blogs.Comment{}, errors.New("no comments exist")
+			return Blogs.CommentResponse{}, errors.New("no comments exist")
 		}
-		return Blogs.Comment{}, err
+		return Blogs.CommentResponse{}, err
 	}
 	return comment, nil
 }
 
-func (p *PostsRepo) UpdateComment(commentId primitive.ObjectID, input Blogs.CommentUpdate) error {
+func (p *PostsRepo) UpdateComment(commentId primitive.ObjectID, input Blogs.UpdateCommentRequest) error {
 	var update bson.D
-	if input.Comment != "" {
-		update = append(update, bson.E{"$set", bson.D{{"comment", input.Comment}}})
+	if input.Comment != nil {
+		update = append(update, bson.E{"$set", bson.D{{"comment", *input.Comment}}})
 	}
 
-	if !input.ReplyPostId.IsZero() {
-		update = append(update, bson.E{"$set", bson.D{{"reply_post_id", input.ReplyPostId}}})
+	if input.ReplyPostId != nil {
+		update = append(update, bson.E{"$set", bson.D{{"reply_post_id", *input.ReplyPostId}}})
 	}
 
 	if len(update) == 0 {
 		return errors.New("no fields to update")
 	}
 
-	update = append(update, bson.E{"$set", bson.D{{"updated_at", primitive.Timestamp{T: uint32(time.Now().Unix())}}}})
+	update = append(update, bson.E{"$set", bson.D{{"updated_at", time.Now()}}})
 	collComments := p.db.Database("blogs").Collection("comments")
 
 	_, err := collComments.UpdateOne(context.TODO(), bson.D{{"_id", commentId}}, update)
@@ -185,9 +185,9 @@ func (p *PostsRepo) AddLike(postId primitive.ObjectID, likedById primitive.Objec
 	}
 
 	filter := bson.D{{"_id", postId}}
-	update := bson.D{{"$push", bson.D{{"likes", Blogs.Like{
+	update := bson.D{{"$push", bson.D{{"likes", Blogs.LikeModel{
 		LikedById: likedById,
-		CreatedAt: primitive.Timestamp{T: uint32(time.Now().Unix())},
+		CreatedAt: time.Now(),
 	}}}}}
 	collPosts := p.db.Database("blogs").Collection("posts")
 

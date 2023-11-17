@@ -52,10 +52,14 @@ func (h *Handler) InitRoutes() *gin.Engine {
 		posts.GET("/", h.getAllPosts)
 		posts.GET("/:post_id", h.getPostById)
 
-		comments := posts.Group("/:post_id/comments")
+		postComments := posts.Group("/:post_id/comments")
 		{
-			comments.POST("/", h.createComment)
-			comments.GET("/", h.getAllComments)
+			postComments.POST("/", h.createComment)
+			postComments.GET("/", h.getAllComments)
+
+		}
+		comments := posts.Group("/comments")
+		{
 			comments.GET("/:comment_id", h.getCommentById)
 
 			myComments := comments.Group("/:comment_id", h.checkOwnershipComment)

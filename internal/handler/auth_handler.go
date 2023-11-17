@@ -13,20 +13,28 @@ import (
 // @ID 				create-account-author
 // @Accept 			json
 // @Produce 		json
-// @Param 			input body Blogs.User true "account info"
+// @Param 			input body Blogs.CreateUserRequest true "account info"
 // @Success 		200 {integer} integer 1
 // @Failure 		400,404 {object} errorResponse
 // @Failure			500 {object} errorResponse
 // @Failure 		default {object} errorResponse
 // @Router 			/auth/author/sign-up [post]
 func (h *Handler) signUpAuthor(c *gin.Context) {
-	var input Blogs.User
+	var input Blogs.CreateUserRequest
 	if err := c.BindJSON(&input); err != nil {
 		newErrorResponse(c, http.StatusBadRequest, "Error with input", err)
 		return
 	}
-	input.Role = "author"
-	id, err := h.services.Authorization.CreateUser(input)
+	signUpData := Blogs.UserModel{
+		Role:      "author",
+		FirstName: input.FirstName,
+		LastName:  input.LastName,
+		Username:  input.Username,
+		Password:  input.Password,
+		Email:     input.Email,
+		Bio:       input.Bio,
+	}
+	id, err := h.services.CreateUser(signUpData)
 	if err != nil {
 		if err.Error() == "already registered" {
 			newErrorResponse(c, http.StatusInternalServerError, "Author with provided data is already registered", err)
@@ -52,20 +60,28 @@ func (h *Handler) signUpAuthor(c *gin.Context) {
 // @ID 				create-account-user
 // @Accept 			json
 // @Produce 		json
-// @Param 			input body Blogs.User true "account info"
+// @Param 			input body Blogs.CreateUserRequest true "account info"
 // @Success 		200 {integer} integer 1
 // @Failure 		400,404 {object} errorResponse
 // @Failure			500 {object} errorResponse
 // @Failure 		default {object} errorResponse
 // @Router 			/auth/user/sign-up [post]
 func (h *Handler) signUpUser(c *gin.Context) {
-	var input Blogs.User
+	var input Blogs.CreateUserRequest
 	if err := c.BindJSON(&input); err != nil {
 		newErrorResponse(c, http.StatusBadRequest, "Error with user input", err)
 		return
 	}
-	input.Role = "user"
-	id, err := h.services.Authorization.CreateUser(input)
+	signUpData := Blogs.UserModel{
+		Role:      "user",
+		FirstName: input.FirstName,
+		LastName:  input.LastName,
+		Username:  input.Username,
+		Password:  input.Password,
+		Email:     input.Email,
+		Bio:       input.Bio,
+	}
+	id, err := h.services.CreateUser(signUpData)
 	if err != nil {
 		if err.Error() == "already registered" {
 			newErrorResponse(c, http.StatusInternalServerError, "User with provided data is already registered", err)
@@ -112,24 +128,17 @@ func (h *Handler) signInAuthor(c *gin.Context) {
 
 	token, err := h.services.GenerateToken(input.Username, input.Password, "author")
 	if err != nil {
+		if err.Error() == "Invalid role" {
+			newErrorResponse(c, http.StatusInternalServerError, "Invalid role", err)
+			return
+		}
 		newErrorResponse(c, http.StatusInternalServerError, "Invalid username or password", err)
-		return
-	}
-
-	role, err := h.services.GetUserRole(input.Username, input.Password)
-	if err != nil {
-		newErrorResponse(c, http.StatusInternalServerError, "Error with user role", err)
-		return
-	}
-
-	if role != "author" {
-		newErrorResponse(c, http.StatusInternalServerError, "User does not have author access", err)
 		return
 	}
 
 	c.JSON(http.StatusOK, TokenRoleResponse{
 		Token: token,
-		Role:  role,
+		Role:  "author",
 	})
 }
 
@@ -163,19 +172,8 @@ func (h *Handler) signInUser(c *gin.Context) {
 		return
 	}
 
-	role, err := h.services.GetUserRole(input.Username, input.Password)
-	if err != nil {
-		newErrorResponse(c, http.StatusInternalServerError, "Error with user role", err)
-		return
-	}
-
-	if role != "user" {
-		newErrorResponse(c, http.StatusInternalServerError, "User has author access", err)
-		return
-	}
-
 	c.JSON(http.StatusOK, TokenRoleResponse{
 		Token: token,
-		Role:  role,
+		Role:  "user",
 	})
 }

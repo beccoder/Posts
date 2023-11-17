@@ -1,6 +1,6 @@
 basePath: /
 definitions:
-  Blogs.Comment:
+  Blogs.CommentResponse:
     properties:
       _id:
         type: string
@@ -8,14 +8,16 @@ definitions:
         type: string
       commented_by_id:
         type: string
+      created_at:
+        type: string
       post_id:
         type: string
       reply_post_id:
         type: string
-    required:
-    - comment
+      updated_at:
+        type: string
     type: object
-  Blogs.CommentUpdate:
+  Blogs.CreateCommentRequest:
     properties:
       comment:
         type: string
@@ -24,23 +26,8 @@ definitions:
     required:
     - comment
     type: object
-  Blogs.Like:
+  Blogs.CreatePostRequest:
     properties:
-      liked_by_id:
-        type: string
-    required:
-    - liked_by_id
-    type: object
-  Blogs.Post:
-    properties:
-      _id:
-        type: string
-      authors_id:
-        type: string
-      likes:
-        items:
-          $ref: '#/definitions/Blogs.Like'
-        type: array
       text:
         type: string
       title:
@@ -49,17 +36,8 @@ definitions:
     - text
     - title
     type: object
-  Blogs.PostUpdate:
+  Blogs.CreateUserRequest:
     properties:
-      text:
-        type: string
-      title:
-        type: string
-    type: object
-  Blogs.User:
-    properties:
-      _id:
-        type: string
       bio:
         type: string
       email:
@@ -70,8 +48,6 @@ definitions:
         type: string
       password:
         type: string
-      role:
-        type: string
       username:
         type: string
     required:
@@ -79,6 +55,46 @@ definitions:
     - first_name
     - password
     - username
+    type: object
+  Blogs.LikeResponse:
+    properties:
+      created_at:
+        type: string
+      liked_by_id:
+        type: string
+    type: object
+  Blogs.PostResponse:
+    properties:
+      _id:
+        type: string
+      authors_id:
+        type: string
+      created_at:
+        type: string
+      likes:
+        items:
+          $ref: '#/definitions/Blogs.LikeResponse'
+        type: array
+      text:
+        type: string
+      title:
+        type: string
+      updated_at:
+        type: string
+    type: object
+  Blogs.UpdateCommentRequest:
+    properties:
+      comment:
+        type: string
+      reply_post_id:
+        type: string
+    type: object
+  Blogs.UpdatePostRequest:
+    properties:
+      text:
+        type: string
+      title:
+        type: string
     type: object
   handler.TokenRoleResponse:
     properties:
@@ -96,14 +112,14 @@ definitions:
     properties:
       data:
         items:
-          $ref: '#/definitions/Blogs.Comment'
+          $ref: '#/definitions/Blogs.CommentResponse'
         type: array
     type: object
   handler.getAllPostsResponse:
     properties:
       data:
         items:
-          $ref: '#/definitions/Blogs.Post'
+          $ref: '#/definitions/Blogs.PostResponse'
         type: array
     type: object
   handler.signInInput:
@@ -179,7 +195,7 @@ paths:
         name: input
         required: true
         schema:
-          $ref: '#/definitions/Blogs.User'
+          $ref: '#/definitions/Blogs.CreateUserRequest'
       produces:
       - application/json
       responses:
@@ -257,7 +273,7 @@ paths:
         name: input
         required: true
         schema:
-          $ref: '#/definitions/Blogs.User'
+          $ref: '#/definitions/Blogs.CreateUserRequest'
       produces:
       - application/json
       responses:
@@ -329,7 +345,7 @@ paths:
         name: input
         required: true
         schema:
-          $ref: '#/definitions/Blogs.Post'
+          $ref: '#/definitions/Blogs.CreatePostRequest'
       produces:
       - application/json
       responses:
@@ -415,7 +431,7 @@ paths:
         "200":
           description: OK
           schema:
-            $ref: '#/definitions/Blogs.Post'
+            $ref: '#/definitions/Blogs.PostResponse'
         "400":
           description: Bad Request
           schema:
@@ -453,7 +469,7 @@ paths:
         name: new_input
         required: true
         schema:
-          $ref: '#/definitions/Blogs.PostUpdate'
+          $ref: '#/definitions/Blogs.UpdatePostRequest'
       produces:
       - application/json
       responses:
@@ -488,6 +504,12 @@ paths:
       - application/json
       description: Get a list of all comments related to this post
       operationId: get-post-comments
+      parameters:
+      - description: Post ID
+        in: path
+        name: post_id
+        required: true
+        type: string
       produces:
       - application/json
       responses:
@@ -522,12 +544,17 @@ paths:
       description: Create a new Comment with provided data
       operationId: comment-on-post
       parameters:
+      - description: Post ID
+        in: path
+        name: post_id
+        required: true
+        type: string
       - description: comment data
         in: body
         name: input
         required: true
         schema:
-          $ref: '#/definitions/Blogs.Comment'
+          $ref: '#/definitions/Blogs.CreateCommentRequest'
       produces:
       - application/json
       responses:
@@ -556,18 +583,93 @@ paths:
       summary: Create a new Comment
       tags:
       - Posts
-  /posts/{post_id}/comments/{comment_id}:
-    delete:
+  /posts/{post_id}/like:
+    post:
       consumes:
       - application/json
-      description: Delete an existing Comment of the post by ID
-      operationId: delete-post-comment
+      description: Like the post
+      operationId: like-post
       parameters:
       - description: Post ID
         in: path
         name: post_id
         required: true
         type: string
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: OK
+          schema:
+            $ref: '#/definitions/handler.statusResponse'
+        "400":
+          description: Bad Request
+          schema:
+            $ref: '#/definitions/handler.errorResponse'
+        "404":
+          description: Not Found
+          schema:
+            $ref: '#/definitions/handler.errorResponse'
+        "500":
+          description: Internal Server Error
+          schema:
+            $ref: '#/definitions/handler.errorResponse'
+        default:
+          description: ""
+          schema:
+            $ref: '#/definitions/handler.errorResponse'
+      security:
+      - ApiKeyAuth: []
+      summary: Like the post
+      tags:
+      - Posts
+  /posts/{post_id}/unlike:
+    post:
+      consumes:
+      - application/json
+      description: Unlike the post
+      operationId: unlike-post
+      parameters:
+      - description: Post ID
+        in: path
+        name: post_id
+        required: true
+        type: string
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: OK
+          schema:
+            $ref: '#/definitions/handler.statusResponse'
+        "400":
+          description: Bad Request
+          schema:
+            $ref: '#/definitions/handler.errorResponse'
+        "404":
+          description: Not Found
+          schema:
+            $ref: '#/definitions/handler.errorResponse'
+        "500":
+          description: Internal Server Error
+          schema:
+            $ref: '#/definitions/handler.errorResponse'
+        default:
+          description: ""
+          schema:
+            $ref: '#/definitions/handler.errorResponse'
+      security:
+      - ApiKeyAuth: []
+      summary: Unlike the post
+      tags:
+      - Posts
+  /posts/comments/{comment_id}:
+    delete:
+      consumes:
+      - application/json
+      description: Delete an existing Comment of the post by ID
+      operationId: delete-post-comment
+      parameters:
       - description: Comment ID
         in: path
         name: comment_id
@@ -607,11 +709,6 @@ paths:
       description: Get a single Comment of the post by providing its ID
       operationId: get-post-comment
       parameters:
-      - description: Post ID
-        in: path
-        name: post_id
-        required: true
-        type: string
       - description: Comment ID
         in: path
         name: comment_id
@@ -623,7 +720,7 @@ paths:
         "200":
           description: OK
           schema:
-            $ref: '#/definitions/Blogs.Comment'
+            $ref: '#/definitions/Blogs.CommentResponse'
         "400":
           description: Bad Request
           schema:
@@ -651,11 +748,6 @@ paths:
       description: Update an existing Comment data of the post with new data
       operationId: update-post-comment
       parameters:
-      - description: Post ID
-        in: path
-        name: post_id
-        required: true
-        type: string
       - description: Comment ID
         in: path
         name: comment_id
@@ -666,7 +758,7 @@ paths:
         name: new_input
         required: true
         schema:
-          $ref: '#/definitions/Blogs.CommentUpdate'
+          $ref: '#/definitions/Blogs.UpdateCommentRequest'
       produces:
       - application/json
       responses:
@@ -693,74 +785,6 @@ paths:
       security:
       - ApiKeyAuth: []
       summary: Update an existing Comment data
-      tags:
-      - Posts
-  /posts/{post_id}/like:
-    post:
-      consumes:
-      - application/json
-      description: Like the post
-      operationId: like-post
-      produces:
-      - application/json
-      responses:
-        "200":
-          description: OK
-          schema:
-            $ref: '#/definitions/handler.statusResponse'
-        "400":
-          description: Bad Request
-          schema:
-            $ref: '#/definitions/handler.errorResponse'
-        "404":
-          description: Not Found
-          schema:
-            $ref: '#/definitions/handler.errorResponse'
-        "500":
-          description: Internal Server Error
-          schema:
-            $ref: '#/definitions/handler.errorResponse'
-        default:
-          description: ""
-          schema:
-            $ref: '#/definitions/handler.errorResponse'
-      security:
-      - ApiKeyAuth: []
-      summary: Like the post
-      tags:
-      - Posts
-  /posts/{post_id}/unlike:
-    post:
-      consumes:
-      - application/json
-      description: Unlike the post
-      operationId: unlike-post
-      produces:
-      - application/json
-      responses:
-        "200":
-          description: OK
-          schema:
-            $ref: '#/definitions/handler.statusResponse'
-        "400":
-          description: Bad Request
-          schema:
-            $ref: '#/definitions/handler.errorResponse'
-        "404":
-          description: Not Found
-          schema:
-            $ref: '#/definitions/handler.errorResponse'
-        "500":
-          description: Internal Server Error
-          schema:
-            $ref: '#/definitions/handler.errorResponse'
-        default:
-          description: ""
-          schema:
-            $ref: '#/definitions/handler.errorResponse'
-      security:
-      - ApiKeyAuth: []
-      summary: Unlike the post
       tags:
       - Posts
   /posts/my:

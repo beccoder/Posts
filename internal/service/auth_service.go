@@ -38,7 +38,7 @@ func generatePasswordHash(password string) string {
 	return fmt.Sprintf("%x", hash.Sum([]byte(salt)))
 }
 
-func (s *AuthService) CreateUser(input Blogs.User) (primitive.ObjectID, error) {
+func (s *AuthService) CreateUser(input Blogs.UserModel) (primitive.ObjectID, error) {
 	users, err := s.repo.GetAllUsers()
 	if err != nil {
 		return primitive.ObjectID{}, err

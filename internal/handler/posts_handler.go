@@ -15,7 +15,7 @@ import (
 // @ID 					create-post
 // @Accept 				json
 // @Produce 			json
-// @Param 				input body Blogs.Post true "post data"
+// @Param 				input body Blogs.CreatePostRequest true "post data"
 // @Success 			200 {integer} integer 1
 // @Failure 			400,404 {object} errorResponse
 // @Failure				500 {object} errorResponse
@@ -28,14 +28,19 @@ func (h *Handler) createPost(c *gin.Context) {
 		return
 	}
 
-	var input Blogs.Post
+	var input Blogs.CreatePostRequest
 	if err := c.BindJSON(&input); err != nil {
 		newErrorResponse(c, http.StatusBadRequest, "Invalid type of input", err)
 		return
 	}
 
-	input.AuthorsId = userId
-	id, err := h.services.CreatePosts(input)
+	createPostData := Blogs.PostModel{
+		AuthorsId: userId,
+		Title:     input.Title,
+		Text:      input.Text,
+	}
+
+	id, err := h.services.CreatePosts(createPostData)
 	if err != nil {
 		newErrorResponse(c, http.StatusInternalServerError, "Error while creating post", err)
 		return
@@ -47,7 +52,7 @@ func (h *Handler) createPost(c *gin.Context) {
 }
 
 type getAllPostsResponse struct {
-	Data []Blogs.Post `json:"data"`
+	Data []Blogs.PostResponse `json:"data"`
 }
 
 // getAllPosts godoc
@@ -114,7 +119,7 @@ func (h *Handler) getMyAllPosts(c *gin.Context) {
 // @Accept 				json
 // @Produce 			json
 // @Param 				post_id path string true "Post ID"
-// @Success 			200 {object} Blogs.Post
+// @Success 			200 {object} Blogs.PostResponse
 // @Failure 			400,404 {object} errorResponse
 // @Failure				500 {object} errorResponse
 // @Failure 			default {object} errorResponse
@@ -148,7 +153,7 @@ func (h *Handler) getPostById(c *gin.Context) {
 // @Accept 				json
 // @Produce 			json
 // @Param 				post_id path string true "Post ID"
-// @Param 				new_input body Blogs.PostUpdate true "new post info"
+// @Param 				new_input body Blogs.UpdatePostRequest true "new post info"
 // @Success 			200 {object} statusResponse
 // @Failure 			400,404 {object} errorResponse
 // @Failure				500 {object} errorResponse
@@ -161,7 +166,7 @@ func (h *Handler) updatePost(c *gin.Context) {
 		return
 	}
 
-	var input Blogs.PostUpdate
+	var input Blogs.UpdatePostRequest
 	if err := c.BindJSON(&input); err != nil {
 		newErrorResponse(c, http.StatusBadRequest, "Invalid type of input", err)
 		return
@@ -214,7 +219,8 @@ func (h *Handler) deletePost(c *gin.Context) {
 // @ID 					comment-on-post
 // @Accept 				json
 // @Produce 			json
-// @Param 				input body Blogs.Comment true "comment data"
+// @Param 				post_id path string true "Post ID"
+// @Param 				input body Blogs.CreateCommentRequest true "comment data"
 // @Success 			200 {integer} integer 1
 // @Failure 			400,404 {object} errorResponse
 // @Failure				500 {object} errorResponse
@@ -231,15 +237,20 @@ func (h *Handler) createComment(c *gin.Context) {
 		newErrorResponse(c, http.StatusBadRequest, "Invalid id param", err)
 		return
 	}
-	var input Blogs.Comment
+	var input Blogs.CreateCommentRequest
 	if err := c.BindJSON(&input); err != nil {
 		newErrorResponse(c, http.StatusBadRequest, "Invalid type of input", err)
 		return
 	}
 
-	input.CommentedById = userId
-	input.PostId = postId
-	id, err := h.services.CreateComment(input)
+	createCommentData := Blogs.CommentModel{
+		PostId:        postId,
+		CommentedById: userId,
+		ReplyPostId:   input.ReplyPostId,
+		Comment:       input.Comment,
+	}
+
+	id, err := h.services.CreateComment(createCommentData)
 	if err != nil {
 		newErrorResponse(c, http.StatusInternalServerError, "Error while creating post", err)
 		return
@@ -251,7 +262,7 @@ func (h *Handler) createComment(c *gin.Context) {
 }
 
 type getAllCommentsResponse struct {
-	Data []Blogs.Comment `json:"data"`
+	Data []Blogs.CommentResponse `json:"data"`
 }
 
 // getAllComments godoc
@@ -262,6 +273,7 @@ type getAllCommentsResponse struct {
 // @ID 					get-post-comments
 // @Accept 				json
 // @Produce 			json
+// @Param 				post_id path string true "Post ID"
 // @Success 			200 {object} getAllCommentsResponse
 // @Failure 			400,404 {object} errorResponse
 // @Failure				500 {object} errorResponse
@@ -292,13 +304,12 @@ func (h *Handler) getAllComments(c *gin.Context) {
 // @ID 					get-post-comment
 // @Accept 				json
 // @Produce 			json
-// @Param 				post_id path string true "Post ID"
 // @Param 				comment_id path string true "Comment ID"
-// @Success 			200 {object} Blogs.Comment
+// @Success 			200 {object} Blogs.CommentResponse
 // @Failure 			400,404 {object} errorResponse
 // @Failure				500 {object} errorResponse
 // @Failure 			default {object} errorResponse
-// @Router 				/posts/{post_id}/comments/{comment_id} [get]
+// @Router 				/posts/comments/{comment_id} [get]
 func (h *Handler) getCommentById(c *gin.Context) {
 	commentId, err := primitive.ObjectIDFromHex(c.Param("comment_id"))
 	if err != nil {
@@ -327,14 +338,13 @@ func (h *Handler) getCommentById(c *gin.Context) {
 // @ID 					update-post-comment
 // @Accept 				json
 // @Produce 			json
-// @Param 				post_id path string true "Post ID"
 // @Param 				comment_id path string true "Comment ID"
-// @Param 				new_input body Blogs.CommentUpdate true "new comment data"
+// @Param 				new_input body Blogs.UpdateCommentRequest true "new comment data"
 // @Success 			200 {object} statusResponse
 // @Failure 			400,404 {object} errorResponse
 // @Failure				500 {object} errorResponse
 // @Failure 			default {object} errorResponse
-// @Router 				/posts/{post_id}/comments/{comment_id} [put]
+// @Router 				/posts/comments/{comment_id} [put]
 func (h *Handler) updateComment(c *gin.Context) {
 	commentId, err := primitive.ObjectIDFromHex(c.Param("comment_id"))
 	if err != nil {
@@ -342,7 +352,7 @@ func (h *Handler) updateComment(c *gin.Context) {
 		return
 	}
 
-	var input Blogs.CommentUpdate
+	var input Blogs.UpdateCommentRequest
 	if err := c.BindJSON(&input); err != nil {
 		newErrorResponse(c, http.StatusBadRequest, "Invalid type of input", err)
 		return
@@ -365,13 +375,12 @@ func (h *Handler) updateComment(c *gin.Context) {
 // @ID 					delete-post-comment
 // @Accept 				json
 // @Produce 			json
-// @Param 				post_id path string true "Post ID"
 // @Param 				comment_id path string true "Comment ID"
 // @Success 			200 {object} statusResponse
 // @Failure 			400,404 {object} errorResponse
 // @Failure				500 {object} errorResponse
 // @Failure 			default {object} errorResponse
-// @Router 				/posts/{post_id}/comments/{comment_id} [delete]
+// @Router 				/posts/comments/{comment_id} [delete]
 func (h *Handler) deleteComment(c *gin.Context) {
 	commentId, err := primitive.ObjectIDFromHex(c.Param("comment_id"))
 	if err != nil {
@@ -396,6 +405,7 @@ func (h *Handler) deleteComment(c *gin.Context) {
 // @ID 					like-post
 // @Accept 				json
 // @Produce 			json
+// @Param 				post_id path string true "Post ID"
 // @Success 			200 {object} statusResponse
 // @Failure 			400,404 {object} errorResponse
 // @Failure				500 {object} errorResponse
@@ -434,6 +444,7 @@ func (h *Handler) likePost(c *gin.Context) {
 // @ID 					unlike-post
 // @Accept 				json
 // @Produce 			json
+// @Param 				post_id path string true "Post ID"
 // @Success 			200 {object} statusResponse
 // @Failure 			400,404 {object} errorResponse
 // @Failure				500 {object} errorResponse
