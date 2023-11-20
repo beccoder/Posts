@@ -4,9 +4,11 @@ import (
 	"Blogs"
 	"context"
 	"errors"
+	"github.com/spf13/viper"
 	"go.mongodb.org/mongo-driver/bson"
 	"go.mongodb.org/mongo-driver/bson/primitive"
 	"go.mongodb.org/mongo-driver/mongo"
+	"log"
 	"time"
 )
 
@@ -20,7 +22,7 @@ func NewPostsRepo(db *mongo.Client) *PostsRepo {
 
 func (p *PostsRepo) CreatePosts(post Blogs.PostModel) (primitive.ObjectID, error) {
 	post.CreatedAt = time.Now()
-	collPosts := p.db.Database("blogs").Collection("posts")
+	collPosts := p.db.Database(viper.GetString("MONGO.DATABASE")).Collection("posts")
 
 	result, err := collPosts.InsertOne(context.TODO(), post)
 	if err != nil {
@@ -31,7 +33,7 @@ func (p *PostsRepo) CreatePosts(post Blogs.PostModel) (primitive.ObjectID, error
 }
 
 func (p *PostsRepo) GetMyAllPosts(userId primitive.ObjectID) ([]Blogs.PostResponse, error) {
-	collPosts := p.db.Database("blogs").Collection("posts")
+	collPosts := p.db.Database(viper.GetString("MONGO.DATABASE")).Collection("posts")
 	result, err := collPosts.Find(context.TODO(), bson.M{"authors_id": userId})
 
 	var posts []Blogs.PostResponse
@@ -42,7 +44,7 @@ func (p *PostsRepo) GetMyAllPosts(userId primitive.ObjectID) ([]Blogs.PostRespon
 }
 
 func (p *PostsRepo) GetAllPosts() ([]Blogs.PostResponse, error) {
-	collPosts := p.db.Database("blogs").Collection("posts")
+	collPosts := p.db.Database(viper.GetString("MONGO.DATABASE")).Collection("posts")
 	result, err := collPosts.Find(context.TODO(), bson.M{})
 
 	var posts []Blogs.PostResponse
@@ -54,7 +56,7 @@ func (p *PostsRepo) GetAllPosts() ([]Blogs.PostResponse, error) {
 
 func (p *PostsRepo) GetPostById(postId primitive.ObjectID) (Blogs.PostResponse, error) {
 	var post Blogs.PostResponse
-	collPosts := p.db.Database("blogs").Collection("posts")
+	collPosts := p.db.Database(viper.GetString("MONGO.DATABASE")).Collection("posts")
 	err := collPosts.FindOne(context.TODO(), bson.D{{"_id", postId}}).Decode(&post)
 
 	if err != nil {
@@ -81,14 +83,14 @@ func (p *PostsRepo) UpdatePost(postId primitive.ObjectID, input Blogs.UpdatePost
 	}
 
 	update = append(update, bson.E{"$set", bson.D{{"updated_at", time.Now()}}})
-	collPosts := p.db.Database("blogs").Collection("posts")
+	collPosts := p.db.Database(viper.GetString("MONGO.DATABASE")).Collection("posts")
 
 	_, err := collPosts.UpdateOne(context.TODO(), bson.D{{"_id", postId}}, update)
 	return err
 }
 
 func (p *PostsRepo) DeletePost(postId primitive.ObjectID) error {
-	collPosts := p.db.Database("blogs").Collection("posts")
+	collPosts := p.db.Database(viper.GetString("MONGO.DATABASE")).Collection("posts")
 	result, err := collPosts.DeleteOne(context.TODO(), bson.D{{"_id", postId}})
 
 	if err != nil {
@@ -102,7 +104,7 @@ func (p *PostsRepo) DeletePost(postId primitive.ObjectID) error {
 
 func (p *PostsRepo) CreateComment(input Blogs.CommentModel) (primitive.ObjectID, error) {
 	input.CreatedAt = time.Now()
-	collPosts := p.db.Database("blogs").Collection("comments")
+	collPosts := p.db.Database(viper.GetString("MONGO.DATABASE")).Collection("comments")
 
 	result, err := collPosts.InsertOne(context.TODO(), input)
 	if err != nil {
@@ -113,7 +115,7 @@ func (p *PostsRepo) CreateComment(input Blogs.CommentModel) (primitive.ObjectID,
 }
 
 func (p *PostsRepo) GetAllComments(postId primitive.ObjectID) ([]Blogs.CommentResponse, error) {
-	collPosts := p.db.Database("blogs").Collection("comments")
+	collPosts := p.db.Database(viper.GetString("MONGO.DATABASE")).Collection("comments")
 	result, err := collPosts.Find(context.TODO(), bson.M{"post_id": postId})
 
 	var comments []Blogs.CommentResponse
@@ -125,7 +127,7 @@ func (p *PostsRepo) GetAllComments(postId primitive.ObjectID) ([]Blogs.CommentRe
 
 func (p *PostsRepo) GetCommentById(commentId primitive.ObjectID) (Blogs.CommentResponse, error) {
 	var comment Blogs.CommentResponse
-	collPosts := p.db.Database("blogs").Collection("comments")
+	collPosts := p.db.Database(viper.GetString("MONGO.DATABASE")).Collection("comments")
 	err := collPosts.FindOne(context.TODO(), bson.D{{"_id", commentId}}).Decode(&comment)
 
 	if err != nil {
@@ -152,14 +154,14 @@ func (p *PostsRepo) UpdateComment(commentId primitive.ObjectID, input Blogs.Upda
 	}
 
 	update = append(update, bson.E{"$set", bson.D{{"updated_at", time.Now()}}})
-	collComments := p.db.Database("blogs").Collection("comments")
+	collComments := p.db.Database(viper.GetString("MONGO.DATABASE")).Collection("comments")
 
 	_, err := collComments.UpdateOne(context.TODO(), bson.D{{"_id", commentId}}, update)
 	return err
 }
 
 func (p *PostsRepo) DeleteComment(commentId primitive.ObjectID) error {
-	collComments := p.db.Database("blogs").Collection("comments")
+	collComments := p.db.Database(viper.GetString("MONGO.DATABASE")).Collection("comments")
 	result, err := collComments.DeleteOne(context.TODO(), bson.D{{"_id", commentId}})
 
 	if err != nil {
@@ -174,6 +176,7 @@ func (p *PostsRepo) DeleteComment(commentId primitive.ObjectID) error {
 func (p *PostsRepo) AddLike(postId primitive.ObjectID, likedById primitive.ObjectID) error {
 	post, err := p.GetPostById(postId)
 	if err != nil {
+		log.Println(err)
 		return err
 	}
 	if post.Likes != nil {
@@ -189,7 +192,7 @@ func (p *PostsRepo) AddLike(postId primitive.ObjectID, likedById primitive.Objec
 		LikedById: likedById,
 		CreatedAt: time.Now(),
 	}}}}}
-	collPosts := p.db.Database("blogs").Collection("posts")
+	collPosts := p.db.Database(viper.GetString("MONGO.DATABASE")).Collection("posts")
 
 	result, err := collPosts.UpdateOne(context.TODO(), filter, update)
 	if err != nil {
@@ -205,7 +208,7 @@ func (p *PostsRepo) UnlikePost(postId primitive.ObjectID, likedById primitive.Ob
 	filter := bson.D{{"_id", postId}}
 	update := bson.D{{"$pull", bson.D{{"likes", bson.D{{"liked_by_id", likedById}}}}}}
 
-	collPosts := p.db.Database("blogs").Collection("posts")
+	collPosts := p.db.Database(viper.GetString("MONGO.DATABASE")).Collection("posts")
 
 	_, err := collPosts.UpdateOne(context.TODO(), filter, update)
 	if err != nil {

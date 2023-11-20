@@ -24,7 +24,7 @@ import (
 func (h *Handler) createPost(c *gin.Context) {
 	userId, err := h.getUserId(c)
 	if err != nil {
-		newErrorResponse(c, http.StatusInternalServerError, "id not found", err)
+		newErrorResponse(c, http.StatusNotFound, "id not found", err)
 		return
 	}
 
@@ -96,7 +96,7 @@ func (h *Handler) getAllPosts(c *gin.Context) {
 func (h *Handler) getMyAllPosts(c *gin.Context) {
 	userId, err := h.getUserId(c)
 	if err != nil {
-		newErrorResponse(c, http.StatusInternalServerError, "id not found", err)
+		newErrorResponse(c, http.StatusNotFound, "id not found", err)
 		return
 	}
 	posts, err := h.services.GetMyAllPosts(userId)
@@ -134,7 +134,7 @@ func (h *Handler) getPostById(c *gin.Context) {
 	post, err := h.services.GetPostById(postId)
 	if err != nil {
 		if err.Error() == "no posts exist" {
-			newErrorResponse(c, http.StatusInternalServerError, "No posts found", err)
+			newErrorResponse(c, http.StatusNotFound, "No posts found", err)
 			return
 		}
 		newErrorResponse(c, http.StatusInternalServerError, "Error in getting post", err)
@@ -229,7 +229,7 @@ func (h *Handler) deletePost(c *gin.Context) {
 func (h *Handler) createComment(c *gin.Context) {
 	userId, err := h.getUserId(c)
 	if err != nil {
-		newErrorResponse(c, http.StatusInternalServerError, "id not found", err)
+		newErrorResponse(c, http.StatusNotFound, "id not found", err)
 		return
 	}
 	postId, err := primitive.ObjectIDFromHex(c.Param("post_id"))
@@ -320,7 +320,7 @@ func (h *Handler) getCommentById(c *gin.Context) {
 	comment, err := h.services.GetCommentById(commentId)
 	if err != nil {
 		if err.Error() == "no comments exist" {
-			newErrorResponse(c, http.StatusInternalServerError, "No comments found", err)
+			newErrorResponse(c, http.StatusNotFound, "No comments found", err)
 			return
 		}
 		newErrorResponse(c, http.StatusInternalServerError, "Error in getting comment", err)
@@ -414,7 +414,7 @@ func (h *Handler) deleteComment(c *gin.Context) {
 func (h *Handler) likePost(c *gin.Context) {
 	userId, err := h.getUserId(c)
 	if err != nil {
-		newErrorResponse(c, http.StatusInternalServerError, "id not found", err)
+		newErrorResponse(c, http.StatusNotFound, "id not found", err)
 		return
 	}
 	postId, err := primitive.ObjectIDFromHex(c.Param("post_id"))
@@ -426,7 +426,11 @@ func (h *Handler) likePost(c *gin.Context) {
 	err = h.services.AddLike(postId, userId)
 	if err != nil {
 		if err.Error() == "already liked" {
-			newErrorResponse(c, http.StatusInternalServerError, "Already liked", err)
+			newErrorResponse(c, http.StatusAlreadyReported, "Already liked", err)
+			return
+		}
+		if err.Error() == "no posts exist" {
+			newErrorResponse(c, http.StatusNotFound, "Post not found", err)
 			return
 		}
 		newErrorResponse(c, http.StatusInternalServerError, "Error while liking post", err)

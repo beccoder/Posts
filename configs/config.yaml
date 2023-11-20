@@ -1,2 +1,8 @@
-MONGO_URI: "mongodb://localhost:27018"
 PORT: "8086"
+
+MONGO:
+  PROTOCOL: "mongodb"
+  HOST: "localhost"
+  PORT: "27018"
+  USERNAME: "admin"
+  DATABASE: "blogs"

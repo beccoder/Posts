@@ -4,6 +4,7 @@ import (
 	"Blogs"
 	"context"
 	"errors"
+	"github.com/spf13/viper"
 	"go.mongodb.org/mongo-driver/bson"
 	"go.mongodb.org/mongo-driver/bson/primitive"
 	"go.mongodb.org/mongo-driver/mongo"
@@ -20,7 +21,7 @@ func NewAuthRepo(db *mongo.Client) *AuthRepo {
 
 func (r *AuthRepo) CreateUser(input Blogs.UserModel) (primitive.ObjectID, error) {
 	input.CreatedAt = time.Now()
-	collUsers := r.db.Database("blogs").Collection("users")
+	collUsers := r.db.Database(viper.GetString("MONGO.DATABASE")).Collection("users")
 
 	result, err := collUsers.InsertOne(context.TODO(), input)
 	if err != nil {
@@ -32,7 +33,7 @@ func (r *AuthRepo) CreateUser(input Blogs.UserModel) (primitive.ObjectID, error)
 
 func (r *AuthRepo) GetAllUsers() ([]Blogs.UserResponse, error) {
 	var users []Blogs.UserResponse
-	coll := r.db.Database("blogs").Collection("users")
+	coll := r.db.Database(viper.GetString("MONGO.DATABASE")).Collection("users")
 	filter, err := coll.Find(context.TODO(), bson.M{})
 	if err != nil {
 		return nil, err
@@ -45,7 +46,7 @@ func (r *AuthRepo) GetAllUsers() ([]Blogs.UserResponse, error) {
 
 func (r *AuthRepo) GetUser(username, password string) (Blogs.UserResponse, error) {
 	var user Blogs.UserResponse
-	coll := r.db.Database("blogs").Collection("users")
+	coll := r.db.Database(viper.GetString("MONGO.DATABASE")).Collection("users")
 	err := coll.FindOne(context.TODO(), bson.D{{"username", username}, {"password", password}}).Decode(&user)
 	if err != nil {
 		if errors.Is(err, mongo.ErrNoDocuments) {
