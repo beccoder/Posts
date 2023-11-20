@@ -4,5 +4,4 @@ MONGO:
   PROTOCOL: "mongodb"
   HOST: "localhost"
   PORT: "27018"
-  USERNAME: "admin"
   DATABASE: "blogs"

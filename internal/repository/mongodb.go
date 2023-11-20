@@ -12,7 +12,7 @@ import (
 
 func ConnectMongoDB(EnvMongoURI string) (*mongo.Client, error) {
 	credential := options.Credential{
-		Username: viper.GetString("MONGO.USERNAME"),
+		Username: os.Getenv("MONGODB_USERNAME"),
 		Password: os.Getenv("MONGODB_PASSWORD"),
 	}
 	clientOptions := options.Client().ApplyURI(EnvMongoURI).SetAuth(credential)
