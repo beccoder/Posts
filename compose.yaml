@@ -1,6 +1,7 @@
 services:
   db:
     image: mongo:4.4
+    container_name: ${DB_CONTAINER_NAME}
     restart: always
     environment:
       MONGO_INITDB_ROOT_USERNAME: ${MONGODB_USERNAME}

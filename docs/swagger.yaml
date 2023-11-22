@@ -1,3 +1,4 @@
+basePath: /
 definitions:
   Blogs.CommentResponse:
     properties:
@@ -136,8 +137,12 @@ definitions:
       status:
         type: string
     type: object
+host: localhost:8086
 info:
   contact: {}
+  description: Blogs Server in Go using Gin framework
+  title: Blogs Server API
+  version: "1.0"
 paths:
   /auth/author/sign-in:
     post:
@@ -816,4 +821,9 @@ paths:
       summary: Get All My Posts
       tags:
       - Posts
+securityDefinitions:
+  ApiKeyAuth:
+    in: header
+    name: Authorization
+    type: apiKey
 swagger: "2.0"

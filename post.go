@@ -22,7 +22,7 @@ type PostResponse struct {
 	Text      string             `json:"text" bson:"text"`
 	Likes     []LikeResponse     `json:"likes,omitempty" bson:"likes,omitempty"`
 	CreatedAt time.Time          `json:"created_at" bson:"created_at"`
-	UpdatedAt time.Time          `json:"updated_at,omitempty" bson:"updated_at,omitempty"`
+	UpdatedAt *time.Time         `json:"updated_at,omitempty" bson:"updated_at,omitempty"`
 }
 
 type LikeResponse struct {
@@ -47,5 +47,5 @@ type CommentResponse struct {
 	ReplyPostId   primitive.ObjectID `json:"reply_post_id,omitempty" bson:"reply_post_id,omitempty"`
 	Comment       string             `json:"comment" bson:"comment"`
 	CreatedAt     time.Time          `json:"created_at" bson:"created_at"`
-	UpdatedAt     time.Time          `json:"updated_at,omitempty" bson:"updated_at,omitempty"`
+	UpdatedAt     *time.Time         `json:"updated_at,omitempty" bson:"updated_at,omitempty"`
 }

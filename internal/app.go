@@ -22,14 +22,15 @@ import (
 // @host localhost:8086
 // @BasePath /
 
-// Run @securityDefinitions.apikey ApiKeyAuth
+// @securityDefinitions.apikey ApiKeyAuth
 // @in header
 // @name Authorization
+
 func Run() {
-	if err := initConfig(); err != nil {
+	if err := godotenv.Load(); err != nil {
 		log.Fatal(err)
 	}
-	if err := godotenv.Load(); err != nil {
+	if err := initConfig(); err != nil {
 		log.Fatal(err)
 	}
 
@@ -47,7 +48,8 @@ func Run() {
 	handlers := handler.NewHandler(services)
 	server := new(Blogs.Server)
 	go func() {
-		if err := server.Run(viper.GetString("port"), handlers.InitRoutes()); err != nil {
+		httpAddr := viper.GetString("HTTP.HOST") + ":" + viper.GetString("HTTP.PORT")
+		if err := server.Run(httpAddr, handlers.InitRoutes()); err != nil {
 			log.Fatalf("Error occured while running http server: %s", err.Error())
 		}
 	}()
@@ -71,6 +73,10 @@ func Run() {
 
 func initConfig() error {
 	viper.AddConfigPath("configs")
-	viper.SetConfigName("config")
+	if os.Getenv("RUN_MODE") == "test" {
+		viper.SetConfigName("test_config")
+	} else {
+		viper.SetConfigName("prod_config")
+	}
 	return viper.ReadInConfig()
 }

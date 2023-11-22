@@ -1,8 +1,13 @@
 {
     "swagger": "2.0",
     "info": {
-        "contact": {}
+        "description": "Blogs Server in Go using Gin framework",
+        "title": "Blogs Server API",
+        "contact": {},
+        "version": "1.0"
     },
+    "host": "localhost:8086",
+    "basePath": "/",
     "paths": {
         "/auth/author/sign-in": {
             "post": {
@@ -1256,6 +1261,13 @@
                     "type": "string"
                 }
             }
+        }
+    },
+    "securityDefinitions": {
+        "ApiKeyAuth": {
+            "type": "apiKey",
+            "name": "Authorization",
+            "in": "header"
         }
     }
 }

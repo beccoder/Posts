@@ -82,7 +82,8 @@ func (p *PostsRepo) UpdatePost(postId primitive.ObjectID, input Blogs.UpdatePost
 		return errors.New("no fields to update")
 	}
 
-	update = append(update, bson.E{"$set", bson.D{{"updated_at", time.Now()}}})
+	updatedTime := time.Now()
+	update = append(update, bson.E{"$set", bson.D{{"updated_at", &updatedTime}}})
 	collPosts := p.db.Database(viper.GetString("MONGO.DATABASE")).Collection("posts")
 
 	_, err := collPosts.UpdateOne(context.TODO(), bson.D{{"_id", postId}}, update)
@@ -153,7 +154,8 @@ func (p *PostsRepo) UpdateComment(commentId primitive.ObjectID, input Blogs.Upda
 		return errors.New("no fields to update")
 	}
 
-	update = append(update, bson.E{"$set", bson.D{{"updated_at", time.Now()}}})
+	updatedTime := time.Now()
+	update = append(update, bson.E{"$set", bson.D{{"updated_at", &updatedTime}}})
 	collComments := p.db.Database(viper.GetString("MONGO.DATABASE")).Collection("comments")
 
 	_, err := collComments.UpdateOne(context.TODO(), bson.D{{"_id", commentId}}, update)

@@ -14,6 +14,8 @@ const (
 	userCtxRole         = "role"
 )
 
+func (h *Handler) middlewareAdmin(c *gin.Context) {}
+
 func (h *Handler) middlewareAuthor(c *gin.Context) {
 	header := c.GetHeader(authorizationHeader)
 	if header == "" {

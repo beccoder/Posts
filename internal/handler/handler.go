@@ -20,6 +20,15 @@ func (h *Handler) InitRoutes() *gin.Engine {
 	router := gin.New()
 	router.GET("/swagger/*any", ginSwagger.WrapHandler(swaggerFiles.Handler))
 
+	admin := router.Group("/admin", h.middlewareAdmin)
+	{
+		admin.POST("/user", h.createUser)            //create
+		admin.GET("/user", h.getAllUsers)            // getAll
+		admin.POST("/user/:user_id", h.getUserById)  // getById
+		admin.PUT("/user/:user_id", h.updateUser)    // update
+		admin.DELETE("/user/:user_id", h.deleteUser) // delete
+	}
+
 	auth := router.Group("/auth")
 	{
 		author := auth.Group("/author")

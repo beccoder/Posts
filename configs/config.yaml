@@ -1,7 +1,0 @@
-PORT: "8086"
-
-MONGO:
-  PROTOCOL: "mongodb"
-  HOST: "localhost"
-  PORT: "27018"
-  DATABASE: "blogs"
