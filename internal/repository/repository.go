@@ -6,14 +6,17 @@ import (
 	"go.mongodb.org/mongo-driver/mongo"
 )
 
-type Authorization interface {
-	//sign-in
+type Administration interface {
 	CreateUser(input Blogs.UserModel) (primitive.ObjectID, error)
 	GetAllUsers() ([]Blogs.UserResponse, error)
-	GetUser(username, password string) (Blogs.UserResponse, error)
 	GetUserById(userId primitive.ObjectID) (Blogs.UserResponse, error)
 	UpdateUser(userId primitive.ObjectID, input Blogs.UpdateUserRequest) error
 	DeleteUser(userId primitive.ObjectID) error
+}
+
+type Authorization interface {
+	//sign-in
+	GetUser(username, password string) (Blogs.UserResponse, error)
 }
 
 type Posts interface {
@@ -36,13 +39,15 @@ type Posts interface {
 }
 
 type Repository struct {
+	Administration
 	Authorization
 	Posts
 }
 
 func NewRepository(db *mongo.Client) *Repository {
 	return &Repository{
-		Authorization: NewAuthRepo(db),
-		Posts:         NewPostsRepo(db),
+		Administration: NewAdmRepo(db),
+		Authorization:  NewAuthRepo(db),
+		Posts:          NewPostsRepo(db),
 	}
 }

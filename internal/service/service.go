@@ -6,20 +6,22 @@ import (
 	"go.mongodb.org/mongo-driver/bson/primitive"
 )
 
-type Authorization interface {
-	//sign-in
-	GenerateToken(login, password, role string) (string, error)
+type Administration interface {
 	CreateUser(input Blogs.UserModel) (primitive.ObjectID, error)
 	GetAllUsers() ([]Blogs.UserResponse, error)
 	GetUserById(userId primitive.ObjectID) (Blogs.UserResponse, error)
-	GetUserRole(login, password string) (string, error)
-	ParseToken(accessToken string) (primitive.ObjectID, string, error)
 	UpdateUser(userId primitive.ObjectID, input Blogs.UpdateUserRequest) error
 	DeleteUser(userId primitive.ObjectID) error
 }
 
+type Authorization interface {
+	GenerateToken(login, password, role string) (string, error)
+	GetUserRole(login, password string) (string, error)
+	ParseToken(accessToken string) (primitive.ObjectID, string, error)
+}
+
 type Posts interface {
-	// CRUD
+	// CRUD posts
 	CreatePosts(post Blogs.PostModel) (primitive.ObjectID, error)
 	GetMyAllPosts(userId primitive.ObjectID) ([]Blogs.PostResponse, error)
 	GetAllPosts() ([]Blogs.PostResponse, error)
@@ -38,13 +40,15 @@ type Posts interface {
 }
 
 type Service struct {
+	Administration
 	Authorization
 	Posts
 }
 
 func NewService(repos *repository.Repository) *Service {
 	return &Service{
-		Authorization: NewAuthService(repos.Authorization),
-		Posts:         NewPostsService(repos.Posts),
+		Administration: NewAdmService(repos.Administration),
+		Authorization:  NewAuthService(repos.Authorization),
+		Posts:          NewPostsService(repos.Posts),
 	}
 }

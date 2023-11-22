@@ -1,7 +1,6 @@
 package service
 
 import (
-	"Blogs"
 	"Blogs/internal/repository"
 	"crypto/sha1"
 	"errors"
@@ -36,23 +35,6 @@ func generatePasswordHash(password string) string {
 	hash.Write([]byte(password))
 
 	return fmt.Sprintf("%x", hash.Sum([]byte(salt)))
-}
-
-func (s *AuthService) CreateUser(input Blogs.UserModel) (primitive.ObjectID, error) {
-	users, err := s.repo.GetAllUsers()
-	if err != nil {
-		return primitive.ObjectID{}, err
-	}
-	for _, user := range users {
-		if input.Email == user.Email && input.Role == user.Role {
-			return primitive.ObjectID{}, errors.New("already registered")
-		}
-		if input.Username == user.Username {
-			return primitive.ObjectID{}, errors.New("username exists")
-		}
-	}
-	input.Password = generatePasswordHash(input.Password)
-	return s.repo.CreateUser(input)
 }
 
 func (s *AuthService) GenerateToken(login, password, role string) (string, error) {
@@ -101,24 +83,4 @@ func (s *AuthService) ParseToken(accessToken string) (primitive.ObjectID, string
 	}
 
 	return claims.UserId, claims.Role, nil
-}
-
-func (s *AuthService) UpdateUser(userId primitive.ObjectID, input Blogs.UpdateUserRequest) error {
-	if input.Password != nil {
-		passwordHash := generatePasswordHash(*input.Password)
-		input.Password = &passwordHash
-	}
-	return s.repo.UpdateUser(userId, input)
-}
-
-func (s *AuthService) DeleteUser(userId primitive.ObjectID) error {
-	return s.repo.DeleteUser(userId)
-}
-
-func (s *AuthService) GetAllUsers() ([]Blogs.UserResponse, error) {
-	return s.repo.GetAllUsers()
-}
-
-func (s *AuthService) GetUserById(userId primitive.ObjectID) (Blogs.UserResponse, error) {
-	return s.repo.GetUserById(userId)
 }
