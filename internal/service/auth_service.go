@@ -102,3 +102,23 @@ func (s *AuthService) ParseToken(accessToken string) (primitive.ObjectID, string
 
 	return claims.UserId, claims.Role, nil
 }
+
+func (s *AuthService) UpdateUser(userId primitive.ObjectID, input Blogs.UpdateUserRequest) error {
+	if input.Password != nil {
+		passwordHash := generatePasswordHash(*input.Password)
+		input.Password = &passwordHash
+	}
+	return s.repo.UpdateUser(userId, input)
+}
+
+func (s *AuthService) DeleteUser(userId primitive.ObjectID) error {
+	return s.repo.DeleteUser(userId)
+}
+
+func (s *AuthService) GetAllUsers() ([]Blogs.UserResponse, error) {
+	return s.repo.GetAllUsers()
+}
+
+func (s *AuthService) GetUserById(userId primitive.ObjectID) (Blogs.UserResponse, error) {
+	return s.repo.GetUserById(userId)
+}

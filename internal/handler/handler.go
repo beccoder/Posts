@@ -22,11 +22,12 @@ func (h *Handler) InitRoutes() *gin.Engine {
 
 	admin := router.Group("/admin", h.middlewareAdmin)
 	{
-		admin.POST("/user", h.createUser)            //create
-		admin.GET("/user", h.getAllUsers)            // getAll
-		admin.POST("/user/:user_id", h.getUserById)  // getById
-		admin.PUT("/user/:user_id", h.updateUser)    // update
-		admin.DELETE("/user/:user_id", h.deleteUser) // delete
+		admin.POST("/visitor/user", h.signUpUser)
+		admin.POST("/visitor/author", h.signUpAuthor)      //create
+		admin.GET("/visitor", h.getAllUsers)               // getAll
+		admin.POST("/visitor/:visitor_id", h.getUserById)  // getById
+		admin.PUT("/visitor/:visitor_id", h.updateUser)    // update
+		admin.DELETE("/visitor/:visitor_id", h.deleteUser) // delete
 	}
 
 	auth := router.Group("/auth")

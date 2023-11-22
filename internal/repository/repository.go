@@ -11,6 +11,9 @@ type Authorization interface {
 	CreateUser(input Blogs.UserModel) (primitive.ObjectID, error)
 	GetAllUsers() ([]Blogs.UserResponse, error)
 	GetUser(username, password string) (Blogs.UserResponse, error)
+	GetUserById(userId primitive.ObjectID) (Blogs.UserResponse, error)
+	UpdateUser(userId primitive.ObjectID, input Blogs.UpdateUserRequest) error
+	DeleteUser(userId primitive.ObjectID) error
 }
 
 type Posts interface {

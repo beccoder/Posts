@@ -1,8 +1,8 @@
 package handler
 
-import "github.com/gin-gonic/gin"
-
-func (h *Handler) createUser(c *gin.Context) {}
+import (
+	"github.com/gin-gonic/gin"
+)
 
 func (h *Handler) getAllUsers(c *gin.Context) {}
 

@@ -69,7 +69,7 @@ func (h *Handler) signUpAuthor(c *gin.Context) {
 func (h *Handler) signUpUser(c *gin.Context) {
 	var input Blogs.CreateUserRequest
 	if err := c.BindJSON(&input); err != nil {
-		newErrorResponse(c, http.StatusBadRequest, "Error with user input", err)
+		newErrorResponse(c, http.StatusBadRequest, "Error with input", err)
 		return
 	}
 	signUpData := Blogs.UserModel{

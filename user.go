@@ -27,10 +27,11 @@ type CreateUserRequest struct {
 }
 
 type UpdateUserRequest struct {
-	FirstName *string `json:"first_name" binding:"required"`
-	LastName  *string `json:"last_name,omitempty"`
-	Username  *string `json:"username" binding:"required"`
-	Password  *string `json:"password" binding:"required"`
-	Email     *string `json:"email" binding:"required"`
-	Bio       *string `json:"bio,omitempty"`
+	FirstName *string `json:"first_name"`
+	LastName  *string `json:"last_name"`
+	Username  *string `json:"username"`
+	Password  *string `json:"password"`
+	Email     *string `json:"email"`
+	Role      *string `json:"role"`
+	Bio       *string `json:"bio"`
 }

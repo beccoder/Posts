@@ -10,8 +10,12 @@ type Authorization interface {
 	//sign-in
 	GenerateToken(login, password, role string) (string, error)
 	CreateUser(input Blogs.UserModel) (primitive.ObjectID, error)
+	GetAllUsers() ([]Blogs.UserResponse, error)
+	GetUserById(userId primitive.ObjectID) (Blogs.UserResponse, error)
 	GetUserRole(login, password string) (string, error)
 	ParseToken(accessToken string) (primitive.ObjectID, string, error)
+	UpdateUser(userId primitive.ObjectID, input Blogs.UpdateUserRequest) error
+	DeleteUser(userId primitive.ObjectID) error
 }
 
 type Posts interface {
