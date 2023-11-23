@@ -14,7 +14,16 @@ type UserResponse struct {
 	Email     string             `json:"email" bson:"email" binding:"required"`
 	Bio       string             `json:"bio,omitempty" bson:"bio,omitempty"`
 	CreatedAt time.Time          `json:"created_at,omitempty" bson:"created_at,omitempty"`
-	UpdatedAt time.Time          `json:"updated_at,omitempty" bson:"updated_at,omitempty"`
+	UpdatedAt *time.Time         `json:"updated_at,omitempty" bson:"updated_at,omitempty"`
+}
+
+type SignUpUserRequest struct {
+	FirstName string `json:"first_name" binding:"required"`
+	LastName  string `json:"last_name,omitempty"`
+	Username  string `json:"username" binding:"required"`
+	Password  string `json:"password" binding:"required"`
+	Email     string `json:"email" binding:"required"`
+	Bio       string `json:"bio,omitempty"`
 }
 
 type CreateUserRequest struct {
@@ -23,6 +32,7 @@ type CreateUserRequest struct {
 	Username  string `json:"username" binding:"required"`
 	Password  string `json:"password" binding:"required"`
 	Email     string `json:"email" binding:"required"`
+	Role      string `json:"role" binding:"required"`
 	Bio       string `json:"bio,omitempty"`
 }
 

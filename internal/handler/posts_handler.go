@@ -2,9 +2,9 @@ package handler
 
 import (
 	"Blogs"
+	"Blogs/internal/handler/http"
 	"github.com/gin-gonic/gin"
 	"go.mongodb.org/mongo-driver/bson/primitive"
-	"net/http"
 )
 
 // createPost godoc
@@ -16,21 +16,21 @@ import (
 // @Accept 				json
 // @Produce 			json
 // @Param 				input body Blogs.CreatePostRequest true "post data"
-// @Success 			200 {integer} integer 1
-// @Failure 			400,404 {object} errorResponse
-// @Failure				500 {object} errorResponse
-// @Failure 			default {object} errorResponse
+// @Success 			200 {object} http.Response ""
+// @Failure 			400,404 {object} http.Response
+// @Failure				500 {object} http.Response
+// @Failure 			default {object} http.Response
 // @Router 				/posts [post]
 func (h *Handler) createPost(c *gin.Context) {
 	userId, err := h.getUserId(c)
 	if err != nil {
-		newErrorResponse(c, http.StatusNotFound, "id not found", err)
+		http.HandleResponse(c, http.NotFound, err.Error())
 		return
 	}
 
 	var input Blogs.CreatePostRequest
 	if err := c.BindJSON(&input); err != nil {
-		newErrorResponse(c, http.StatusBadRequest, "Invalid type of input", err)
+		http.HandleResponse(c, http.BadRequest, err.Error())
 		return
 	}
 
@@ -42,17 +42,13 @@ func (h *Handler) createPost(c *gin.Context) {
 
 	id, err := h.services.CreatePosts(createPostData)
 	if err != nil {
-		newErrorResponse(c, http.StatusInternalServerError, "Error while creating post", err)
+		http.HandleResponse(c, http.InternalServerError, err.Error())
 		return
 	}
 
-	c.JSON(http.StatusOK, map[string]interface{}{
+	http.HandleResponse(c, http.Created, map[string]interface{}{
 		"id": id,
 	})
-}
-
-type getAllPostsResponse struct {
-	Data []Blogs.PostResponse `json:"data"`
 }
 
 // getAllPosts godoc
@@ -63,21 +59,19 @@ type getAllPostsResponse struct {
 // @ID 					get-posts
 // @Accept 				json
 // @Produce 			json
-// @Success 			200 {object} getAllPostsResponse
-// @Failure 			400,404 {object} errorResponse
-// @Failure				500 {object} errorResponse
-// @Failure 			default {object} errorResponse
+// @Success 			200 {object} http.Response
+// @Failure 			400,404 {object} http.Response
+// @Failure				500 {object} http.Response
+// @Failure 			default {object} http.Response
 // @Router 				/posts [get]
 func (h *Handler) getAllPosts(c *gin.Context) {
 	posts, err := h.services.GetAllPosts()
 	if err != nil {
-		newErrorResponse(c, http.StatusInternalServerError, "error while getting posts", err)
+		http.HandleResponse(c, http.InternalServerError, err.Error())
 		return
 	}
 
-	c.JSON(http.StatusOK, getAllPostsResponse{
-		Data: posts,
-	})
+	http.HandleResponse(c, http.OK, posts)
 }
 
 // getMyAllPosts godoc
@@ -88,26 +82,24 @@ func (h *Handler) getAllPosts(c *gin.Context) {
 // @ID 					get-my-posts
 // @Accept 				json
 // @Produce 			json
-// @Success 			200 {object} getAllPostsResponse
-// @Failure 			400,404 {object} errorResponse
-// @Failure				500 {object} errorResponse
-// @Failure 			default {object} errorResponse
+// @Success 			200 {object} http.Response
+// @Failure 			400,404 {object} http.Response
+// @Failure				500 {object} http.Response
+// @Failure 			default {object} http.Response
 // @Router 				/posts/my [get]
 func (h *Handler) getMyAllPosts(c *gin.Context) {
 	userId, err := h.getUserId(c)
 	if err != nil {
-		newErrorResponse(c, http.StatusNotFound, "id not found", err)
+		http.HandleResponse(c, http.NotFound, err.Error())
 		return
 	}
 	posts, err := h.services.GetMyAllPosts(userId)
 	if err != nil {
-		newErrorResponse(c, http.StatusInternalServerError, "error while getting posts", err)
+		http.HandleResponse(c, http.InternalServerError, err.Error())
 		return
 	}
 
-	c.JSON(http.StatusOK, getAllPostsResponse{
-		Data: posts,
-	})
+	http.HandleResponse(c, http.OK, posts)
 }
 
 // getPostById godoc
@@ -119,29 +111,29 @@ func (h *Handler) getMyAllPosts(c *gin.Context) {
 // @Accept 				json
 // @Produce 			json
 // @Param 				post_id path string true "Post ID"
-// @Success 			200 {object} Blogs.PostResponse
-// @Failure 			400,404 {object} errorResponse
-// @Failure				500 {object} errorResponse
-// @Failure 			default {object} errorResponse
+// @Success 			200 {object} http.Response
+// @Failure 			400,404 {object} http.Response
+// @Failure				500 {object} http.Response
+// @Failure 			default {object} http.Response
 // @Router 				/posts/{post_id} [get]
 func (h *Handler) getPostById(c *gin.Context) {
 	postId, err := primitive.ObjectIDFromHex(c.Param("post_id"))
 	if err != nil {
-		newErrorResponse(c, http.StatusBadRequest, "Invalid id param", err)
+		http.HandleResponse(c, http.InvalidArgument, err.Error())
 		return
 	}
 
 	post, err := h.services.GetPostById(postId)
 	if err != nil {
 		if err.Error() == "no posts exist" {
-			newErrorResponse(c, http.StatusNotFound, "No posts found", err)
+			http.HandleResponse(c, http.NotFound, err.Error())
 			return
 		}
-		newErrorResponse(c, http.StatusInternalServerError, "Error in getting post", err)
+		http.HandleResponse(c, http.InternalServerError, err.Error())
 		return
 	}
 
-	c.JSON(http.StatusOK, post)
+	http.HandleResponse(c, http.OK, post)
 }
 
 // updatePost godoc
@@ -154,31 +146,31 @@ func (h *Handler) getPostById(c *gin.Context) {
 // @Produce 			json
 // @Param 				post_id path string true "Post ID"
 // @Param 				new_input body Blogs.UpdatePostRequest true "new post info"
-// @Success 			200 {object} statusResponse
-// @Failure 			400,404 {object} errorResponse
-// @Failure				500 {object} errorResponse
-// @Failure 			default {object} errorResponse
+// @Success 			200 {object} http.Response
+// @Failure 			400,404 {object} http.Response
+// @Failure				500 {object} http.Response
+// @Failure 			default {object} http.Response
 // @Router 				/posts/{post_id} [put]
 func (h *Handler) updatePost(c *gin.Context) {
 	postId, err := primitive.ObjectIDFromHex(c.Param("post_id"))
 	if err != nil {
-		newErrorResponse(c, http.StatusBadRequest, "Invalid id param", err)
+		http.HandleResponse(c, http.InvalidArgument, err.Error())
 		return
 	}
 
 	var input Blogs.UpdatePostRequest
 	if err := c.BindJSON(&input); err != nil {
-		newErrorResponse(c, http.StatusBadRequest, "Invalid type of input", err)
+		http.HandleResponse(c, http.BadRequest, err.Error())
 		return
 	}
 
 	err = h.services.UpdatePost(postId, input)
 	if err != nil {
-		newErrorResponse(c, http.StatusInternalServerError, "Error while updating post", err)
+		http.HandleResponse(c, http.InternalServerError, err.Error())
 		return
 	}
 
-	c.JSON(http.StatusOK, statusResponse{"ok"})
+	http.HandleResponse(c, http.OK, statusResponse{"ok"})
 }
 
 // deletePost godoc
@@ -190,25 +182,25 @@ func (h *Handler) updatePost(c *gin.Context) {
 // @Accept 				json
 // @Produce 			json
 // @Param 				post_id path string true "Post ID"
-// @Success 			200 {object} statusResponse
-// @Failure 			400,404 {object} errorResponse
-// @Failure				500 {object} errorResponse
-// @Failure 			default {object} errorResponse
+// @Success 			200 {object} http.Response
+// @Failure 			400,404 {object} http.Response
+// @Failure				500 {object} http.Response
+// @Failure 			default {object} http.Response
 // @Router 				/posts/{post_id} [delete]
 func (h *Handler) deletePost(c *gin.Context) {
 	postId, err := primitive.ObjectIDFromHex(c.Param("post_id"))
 	if err != nil {
-		newErrorResponse(c, http.StatusBadRequest, "Invalid id param", err)
+		http.HandleResponse(c, http.BadRequest, err.Error())
 		return
 	}
 
 	err = h.services.DeletePost(postId)
 	if err != nil {
-		newErrorResponse(c, http.StatusInternalServerError, "Error while deleting post", err)
+		http.HandleResponse(c, http.InternalServerError, err.Error())
 		return
 	}
 
-	c.JSON(http.StatusOK, statusResponse{"ok"})
+	http.HandleResponse(c, http.OK, statusResponse{"ok"})
 }
 
 // createComment godoc
@@ -221,25 +213,25 @@ func (h *Handler) deletePost(c *gin.Context) {
 // @Produce 			json
 // @Param 				post_id path string true "Post ID"
 // @Param 				input body Blogs.CreateCommentRequest true "comment data"
-// @Success 			200 {integer} integer 1
-// @Failure 			400,404 {object} errorResponse
-// @Failure				500 {object} errorResponse
-// @Failure 			default {object} errorResponse
+// @Success 			200 {object} http.Response ""
+// @Failure 			400,404 {object} http.Response
+// @Failure				500 {object} http.Response
+// @Failure 			default {object} http.Response
 // @Router 				/posts/{post_id}/comments [post]
 func (h *Handler) createComment(c *gin.Context) {
 	userId, err := h.getUserId(c)
 	if err != nil {
-		newErrorResponse(c, http.StatusNotFound, "id not found", err)
+		http.HandleResponse(c, http.InvalidArgument, err.Error())
 		return
 	}
 	postId, err := primitive.ObjectIDFromHex(c.Param("post_id"))
 	if err != nil {
-		newErrorResponse(c, http.StatusBadRequest, "Invalid id param", err)
+		http.HandleResponse(c, http.InvalidArgument, err.Error())
 		return
 	}
 	var input Blogs.CreateCommentRequest
 	if err := c.BindJSON(&input); err != nil {
-		newErrorResponse(c, http.StatusBadRequest, "Invalid type of input", err)
+		http.HandleResponse(c, http.BadRequest, err.Error())
 		return
 	}
 
@@ -252,17 +244,13 @@ func (h *Handler) createComment(c *gin.Context) {
 
 	id, err := h.services.CreateComment(createCommentData)
 	if err != nil {
-		newErrorResponse(c, http.StatusInternalServerError, "Error while creating post", err)
+		http.HandleResponse(c, http.InternalServerError, err.Error())
 		return
 	}
 
-	c.JSON(http.StatusOK, map[string]interface{}{
+	http.HandleResponse(c, http.Created, map[string]interface{}{
 		"id": id,
 	})
-}
-
-type getAllCommentsResponse struct {
-	Data []Blogs.CommentResponse `json:"data"`
 }
 
 // getAllComments godoc
@@ -274,26 +262,24 @@ type getAllCommentsResponse struct {
 // @Accept 				json
 // @Produce 			json
 // @Param 				post_id path string true "Post ID"
-// @Success 			200 {object} getAllCommentsResponse
-// @Failure 			400,404 {object} errorResponse
-// @Failure				500 {object} errorResponse
-// @Failure 			default {object} errorResponse
+// @Success 			200 {object} http.Response
+// @Failure 			400,404 {object} http.Response
+// @Failure				500 {object} http.Response
+// @Failure 			default {object} http.Response
 // @Router 				/posts/{post_id}/comments [get]
 func (h *Handler) getAllComments(c *gin.Context) {
 	postId, err := primitive.ObjectIDFromHex(c.Param("post_id"))
 	if err != nil {
-		newErrorResponse(c, http.StatusBadRequest, "Invalid id param", err)
+		http.HandleResponse(c, http.InvalidArgument, err.Error())
 		return
 	}
 	comments, err := h.services.GetAllComments(postId)
 	if err != nil {
-		newErrorResponse(c, http.StatusInternalServerError, "error while getting comments", err)
+		http.HandleResponse(c, http.InternalServerError, err.Error())
 		return
 	}
 
-	c.JSON(http.StatusOK, getAllCommentsResponse{
-		Data: comments,
-	})
+	http.HandleResponse(c, http.OK, comments)
 }
 
 // getCommentById godoc
@@ -305,29 +291,29 @@ func (h *Handler) getAllComments(c *gin.Context) {
 // @Accept 				json
 // @Produce 			json
 // @Param 				comment_id path string true "Comment ID"
-// @Success 			200 {object} Blogs.CommentResponse
-// @Failure 			400,404 {object} errorResponse
-// @Failure				500 {object} errorResponse
-// @Failure 			default {object} errorResponse
+// @Success 			200 {object} http.Response
+// @Failure 			400,404 {object} http.Response
+// @Failure				500 {object} http.Response
+// @Failure 			default {object} http.Response
 // @Router 				/posts/comments/{comment_id} [get]
 func (h *Handler) getCommentById(c *gin.Context) {
 	commentId, err := primitive.ObjectIDFromHex(c.Param("comment_id"))
 	if err != nil {
-		newErrorResponse(c, http.StatusBadRequest, "Invalid comment_id param", err)
+		http.HandleResponse(c, http.InvalidArgument, err.Error())
 		return
 	}
 
 	comment, err := h.services.GetCommentById(commentId)
 	if err != nil {
 		if err.Error() == "no comments exist" {
-			newErrorResponse(c, http.StatusNotFound, "No comments found", err)
+			http.HandleResponse(c, http.NotFound, err.Error())
 			return
 		}
-		newErrorResponse(c, http.StatusInternalServerError, "Error in getting comment", err)
+		http.HandleResponse(c, http.InternalServerError, err.Error())
 		return
 	}
 
-	c.JSON(http.StatusOK, comment)
+	http.HandleResponse(c, http.OK, comment)
 }
 
 // updateComment godoc
@@ -340,31 +326,31 @@ func (h *Handler) getCommentById(c *gin.Context) {
 // @Produce 			json
 // @Param 				comment_id path string true "Comment ID"
 // @Param 				new_input body Blogs.UpdateCommentRequest true "new comment data"
-// @Success 			200 {object} statusResponse
-// @Failure 			400,404 {object} errorResponse
-// @Failure				500 {object} errorResponse
-// @Failure 			default {object} errorResponse
+// @Success 			200 {object} http.Response
+// @Failure 			400,404 {object} http.Response
+// @Failure				500 {object} http.Response
+// @Failure 			default {object} http.Response
 // @Router 				/posts/comments/{comment_id} [put]
 func (h *Handler) updateComment(c *gin.Context) {
 	commentId, err := primitive.ObjectIDFromHex(c.Param("comment_id"))
 	if err != nil {
-		newErrorResponse(c, http.StatusBadRequest, "Invalid comment_id param", err)
+		http.HandleResponse(c, http.InvalidArgument, err.Error())
 		return
 	}
 
 	var input Blogs.UpdateCommentRequest
 	if err := c.BindJSON(&input); err != nil {
-		newErrorResponse(c, http.StatusBadRequest, "Invalid type of input", err)
+		http.HandleResponse(c, http.BadRequest, err.Error())
 		return
 	}
 
 	err = h.services.UpdateComment(commentId, input)
 	if err != nil {
-		newErrorResponse(c, http.StatusInternalServerError, "Error while updating comment", err)
+		http.HandleResponse(c, http.InternalServerError, err.Error())
 		return
 	}
 
-	c.JSON(http.StatusOK, statusResponse{"ok"})
+	http.HandleResponse(c, http.OK, statusResponse{"ok"})
 }
 
 // deleteComment godoc
@@ -376,25 +362,25 @@ func (h *Handler) updateComment(c *gin.Context) {
 // @Accept 				json
 // @Produce 			json
 // @Param 				comment_id path string true "Comment ID"
-// @Success 			200 {object} statusResponse
-// @Failure 			400,404 {object} errorResponse
-// @Failure				500 {object} errorResponse
-// @Failure 			default {object} errorResponse
+// @Success 			200 {object} http.Response
+// @Failure 			400,404 {object} http.Response
+// @Failure				500 {object} http.Response
+// @Failure 			default {object} http.Response
 // @Router 				/posts/comments/{comment_id} [delete]
 func (h *Handler) deleteComment(c *gin.Context) {
 	commentId, err := primitive.ObjectIDFromHex(c.Param("comment_id"))
 	if err != nil {
-		newErrorResponse(c, http.StatusBadRequest, "Invalid id param", err)
+		http.HandleResponse(c, http.InvalidArgument, err.Error())
 		return
 	}
 
 	err = h.services.DeleteComment(commentId)
 	if err != nil {
-		newErrorResponse(c, http.StatusInternalServerError, "Error while deleting comment", err)
+		http.HandleResponse(c, http.InternalServerError, err.Error())
 		return
 	}
 
-	c.JSON(http.StatusOK, statusResponse{"ok"})
+	http.HandleResponse(c, http.OK, statusResponse{"ok"})
 }
 
 // likePost godoc
@@ -406,38 +392,38 @@ func (h *Handler) deleteComment(c *gin.Context) {
 // @Accept 				json
 // @Produce 			json
 // @Param 				post_id path string true "Post ID"
-// @Success 			200 {object} statusResponse
-// @Failure 			400,404 {object} errorResponse
-// @Failure				500 {object} errorResponse
-// @Failure 			default {object} errorResponse
+// @Success 			200 {object} http.Response
+// @Failure 			400,404 {object} http.Response
+// @Failure				500 {object} http.Response
+// @Failure 			default {object} http.Response
 // @Router 				/posts/{post_id}/like [post]
 func (h *Handler) likePost(c *gin.Context) {
 	userId, err := h.getUserId(c)
 	if err != nil {
-		newErrorResponse(c, http.StatusNotFound, "id not found", err)
+		http.HandleResponse(c, http.InvalidArgument, err.Error())
 		return
 	}
 	postId, err := primitive.ObjectIDFromHex(c.Param("post_id"))
 	if err != nil {
-		newErrorResponse(c, http.StatusBadRequest, "Invalid id param", err)
+		http.HandleResponse(c, http.InvalidArgument, err.Error())
 		return
 	}
 
 	err = h.services.AddLike(postId, userId)
 	if err != nil {
 		if err.Error() == "already liked" {
-			newErrorResponse(c, http.StatusAlreadyReported, "Already liked", err)
+			http.HandleResponse(c, http.RequestConflict, err.Error())
 			return
 		}
 		if err.Error() == "no posts exist" {
-			newErrorResponse(c, http.StatusNotFound, "Post not found", err)
+			http.HandleResponse(c, http.NotFound, err.Error())
 			return
 		}
-		newErrorResponse(c, http.StatusInternalServerError, "Error while liking post", err)
+		http.HandleResponse(c, http.InternalServerError, err.Error())
 		return
 	}
 
-	c.JSON(http.StatusOK, statusResponse{"ok"})
+	http.HandleResponse(c, http.OK, statusResponse{"ok"})
 }
 
 // unlikePost godoc
@@ -449,28 +435,28 @@ func (h *Handler) likePost(c *gin.Context) {
 // @Accept 				json
 // @Produce 			json
 // @Param 				post_id path string true "Post ID"
-// @Success 			200 {object} statusResponse
-// @Failure 			400,404 {object} errorResponse
-// @Failure				500 {object} errorResponse
-// @Failure 			default {object} errorResponse
+// @Success 			200 {object} http.Response
+// @Failure 			400,404 {object} http.Response
+// @Failure				500 {object} http.Response
+// @Failure 			default {object} http.Response
 // @Router 				/posts/{post_id}/unlike [post]
 func (h *Handler) unlikePost(c *gin.Context) {
 	userId, err := h.getUserId(c)
 	if err != nil {
-		newErrorResponse(c, http.StatusInternalServerError, "id not found", err)
+		http.HandleResponse(c, http.InvalidArgument, err.Error())
 		return
 	}
 	postId, err := primitive.ObjectIDFromHex(c.Param("post_id"))
 	if err != nil {
-		newErrorResponse(c, http.StatusBadRequest, "Invalid id param", err)
+		http.HandleResponse(c, http.InvalidArgument, err.Error())
 		return
 	}
 
 	err = h.services.UnlikePost(postId, userId)
 	if err != nil {
-		newErrorResponse(c, http.StatusInternalServerError, "Error while unliking post", err)
+		http.HandleResponse(c, http.InternalServerError, err.Error())
 		return
 	}
 
-	c.JSON(http.StatusOK, statusResponse{"ok"})
+	http.HandleResponse(c, http.OK, statusResponse{"ok"})
 }

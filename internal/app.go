@@ -80,3 +80,43 @@ func initConfig() error {
 	}
 	return viper.ReadInConfig()
 }
+
+func HandleCLA(args []string) {
+	if len(os.Args) != 4 {
+		log.Fatalf("invalid args format:\norder of arguments to create superadmin: username password role")
+	}
+
+	username := args[1]
+	password := args[2]
+	role := args[3]
+
+	if err := godotenv.Load(); err != nil {
+		log.Fatal(err)
+	}
+	if err := initConfig(); err != nil {
+		log.Fatal(err)
+	}
+
+	dbURI := viper.GetString("MONGO.PROTOCOL") + "://" + viper.GetString("MONGO.HOST") + ":" + viper.GetString("MONGO.PORT")
+	client, err := repository.ConnectMongoDB(dbURI)
+	err = repository.InitSchemas(client)
+	if err != nil {
+		panic(err)
+	}
+	repos := repository.NewRepository(client)
+	services := service.NewService(repos)
+	id, err := services.CreateUser(Blogs.UserModel{
+		Role:     role,
+		Username: username,
+		Password: password,
+	})
+
+	if err != nil {
+		log.Fatal(err)
+	} else {
+		log.Println(id)
+	}
+	if err := client.Disconnect(context.TODO()); err != nil {
+		log.Fatalf("Error occured on db connection close: %s", err.Error())
+	}
+}
