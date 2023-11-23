@@ -34,7 +34,7 @@ func (h *Handler) middlewareAdmin(c *gin.Context) {
 	}
 
 	if role != "admin" {
-		http.HandleResponse(c, http.AccessDenied, "Access denied")
+		http.HandleResponse(c, http.Forbidden, "Forbidden")
 		return
 
 	}
@@ -112,7 +112,7 @@ func getUserRole(c *gin.Context) (string, error) {
 	}
 	roleStr, ok := role.(string)
 	if !ok {
-		return "", errors.New("role not found")
+		return "", errors.New("role not string")
 	}
 	return roleStr, nil
 }
@@ -139,7 +139,12 @@ func (h *Handler) checkOwnershipComment(c *gin.Context) {
 		http.HandleResponse(c, http.InternalServerError, err.Error())
 		return
 	}
-	if userId.Hex() != comment.CommentedById.Hex() {
+	role, err := getUserRole(c)
+	if err != nil {
+		http.HandleResponse(c, http.InvalidArgument, err.Error())
+		return
+	}
+	if userId.Hex() != comment.CommentedById.Hex() && role != "admin" {
 		http.HandleResponse(c, http.AccessDenied, "access denied")
 		return
 	}
@@ -154,7 +159,7 @@ func (h *Handler) checkOwnershipPost(c *gin.Context) {
 
 	userId, err := h.getUserId(c)
 	if err != nil {
-		http.HandleResponse(c, http.InternalServerError, err.Error())
+		http.HandleResponse(c, http.InvalidArgument, err.Error())
 		return
 	}
 
@@ -169,7 +174,13 @@ func (h *Handler) checkOwnershipPost(c *gin.Context) {
 		return
 	}
 
-	if userId.Hex() != post.AuthorsId.Hex() {
+	role, err := getUserRole(c)
+	if err != nil {
+		http.HandleResponse(c, http.InvalidArgument, err.Error())
+		return
+	}
+
+	if userId.Hex() != post.AuthorsId.Hex() && role != "admin" {
 		http.HandleResponse(c, http.AccessDenied, "access denied")
 		return
 	}
