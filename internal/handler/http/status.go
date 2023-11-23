@@ -73,15 +73,3 @@ var (
 		Description: "Requested operation resulted in conflict",
 	}
 )
-
-// 400	INVALID_BODY	A request body that was not in JSON format was passed.
-// 400	UNSUPPORTED_OPERATION	Requested operation not supported.
-// 401	ACCESS_DENIED	Authentication unsuccessful.
-// 401	NO_AUTH	Authentication not provided.
-// 403	NOT_AUTHORIZED	User has not been authorized to perform that action.
-// 404	NOT_FOUND	Invalid URL.
-// 405	METHOD_NOT_ALLOWED	Method is not allowed for this endpoint.
-// 409	REQUEST_CONFLICT	Requested operation resulted in conflict.
-// 429	HIT_RATE_LIMIT	Hourly rate limit has been reached for this token. Default rate limits are 2,000 calls per hour.
-// 500	EXPANSION_FAILED	Unhandled error occurred during expansion; the request is likely to succeed if you don’t ask for expansions, but contact Eventbrite support if this problem persists.
-// 500	INTERNAL_ERROR	Unhandled error occurred in Eventbrite. contact Eventbrite support if this problem persists.
