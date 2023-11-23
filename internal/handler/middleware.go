@@ -17,7 +17,7 @@ const (
 func (h *Handler) middlewareAdmin(c *gin.Context) {
 	header := c.GetHeader(authorizationHeader)
 	if header == "" {
-		http.HandleResponse(c, http.InvalidAuthHeader, "Empty auth header")
+		http.HandleResponse(c, http.Unauthorized, "Empty auth header")
 		return
 	}
 
@@ -45,7 +45,7 @@ func (h *Handler) middlewareAdmin(c *gin.Context) {
 func (h *Handler) middlewareAuthor(c *gin.Context) {
 	header := c.GetHeader(authorizationHeader)
 	if header == "" {
-		http.HandleResponse(c, http.InvalidAuthHeader, "Empty auth header")
+		http.HandleResponse(c, http.Unauthorized, "Empty auth header")
 		return
 	}
 
@@ -72,7 +72,7 @@ func (h *Handler) middlewareAuthor(c *gin.Context) {
 func (h *Handler) middleware(c *gin.Context) {
 	header := c.GetHeader(authorizationHeader)
 	if header == "" {
-		http.HandleResponse(c, http.InvalidAuthHeader, "Empty auth header")
+		http.HandleResponse(c, http.Unauthorized, "Empty auth header")
 		return
 	}
 
