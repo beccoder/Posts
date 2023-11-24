@@ -28,13 +28,13 @@ func (s *AdmService) CreateUser(input Blogs.UserModel) (primitive.ObjectID, erro
 			return primitive.ObjectID{}, errors.New("username exists")
 		}
 	}
-	input.Password = generatePasswordHash(input.Password)
+	input.Password = Blogs.GeneratePasswordHash(input.Password)
 	return s.repo.CreateUser(input)
 }
 
 func (s *AdmService) UpdateUser(userId primitive.ObjectID, input Blogs.UpdateUserRequest) error {
 	if input.Password != nil {
-		passwordHash := generatePasswordHash(*input.Password)
+		passwordHash := Blogs.GeneratePasswordHash(*input.Password)
 		input.Password = &passwordHash
 	}
 	return s.repo.UpdateUser(userId, input)

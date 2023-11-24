@@ -27,10 +27,7 @@ import (
 // @name Authorization
 
 func Run() {
-	if err := godotenv.Load(); err != nil {
-		log.Fatal(err)
-	}
-	if err := initConfig(); err != nil {
+	if err := LoadEnvConfig(); err != nil {
 		log.Fatal(err)
 	}
 
@@ -71,7 +68,7 @@ func Run() {
 	}
 }
 
-func initConfig() error {
+func InitConfig() error {
 	viper.AddConfigPath("configs")
 	if os.Getenv("RUN_MODE") == "test" {
 		viper.SetConfigName("test_config")
@@ -79,6 +76,17 @@ func initConfig() error {
 		viper.SetConfigName("prod_config")
 	}
 	return viper.ReadInConfig()
+}
+
+func LoadEnvConfig() error {
+	err := InitConfig()
+	if err != nil {
+		return err
+	}
+	if err := godotenv.Load(); err != nil {
+		return err
+	}
+	return nil
 }
 
 func HandleCLA(args []string) {
@@ -93,7 +101,7 @@ func HandleCLA(args []string) {
 	if err := godotenv.Load(); err != nil {
 		log.Fatal(err)
 	}
-	if err := initConfig(); err != nil {
+	if err := InitConfig(); err != nil {
 		log.Fatal(err)
 	}
 

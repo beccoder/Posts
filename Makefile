@@ -37,10 +37,23 @@ prod_var:
 	sed -i '/^RUN_MODE=/d' .env
 	echo "RUN_MODE=prod" >> .env
 
-test: test_var create_db_storage_folder build_image compose_up run
+swag_init:
+	swag init -g internal/app.go
 
-clean: compose_down remove_db_storage_folder
+add_admin:
+	go run cmd/main.go admin admin admin
 
-re_run: clean create_db_storage_folder build_image compose_up run
+test: test_var build_image compose_up run_test
 
-.PHONY: run build_image compose_up compose_down stop_container remove_container remove_db_storage_folder create_db_storage_folder clean re_run
+run_test:
+	go test ./...
+
+clean: compose_down
+
+rebuild: build_image compose_up run
+
+f_clean: compose_down remove_db_storage_folder
+
+f_rebuild: f_clean create_db_storage_folder build_image compose_up run
+
+.PHONY: run build_image compose_up compose_down stop_container remove_container remove_db_storage_folder create_db_storage_folder clean re_run swag-init

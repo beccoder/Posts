@@ -1,9 +1,13 @@
 package Blogs
 
 import (
+	"crypto/sha1"
+	"fmt"
 	"go.mongodb.org/mongo-driver/bson/primitive"
 	"time"
 )
+
+const salt = "dflshfksjdhsasdajc"
 
 type UserResponse struct {
 	Id        primitive.ObjectID `json:"_id,omitempty" bson:"_id,omitempty"`
@@ -44,4 +48,11 @@ type UpdateUserRequest struct {
 	Email     *string `json:"email"`
 	Role      *string `json:"role"`
 	Bio       *string `json:"bio"`
+}
+
+func GeneratePasswordHash(password string) string {
+	hash := sha1.New()
+	hash.Write([]byte(password))
+
+	return fmt.Sprintf("%x", hash.Sum([]byte(salt)))
 }
