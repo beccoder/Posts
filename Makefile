@@ -56,4 +56,4 @@ f_clean: compose_down remove_db_storage_folder
 
 f_rebuild: f_clean create_db_storage_folder build_image compose_up run
 
-.PHONY: f_clean f_rebuild run build_image compose_up compose_down stop_container remove_container remove_db_storage_folder create_db_storage_folder clean re_run swag-init
+.PHONY: f_rebuild f_clean f_rebuild run build_image compose_up compose_down stop_container remove_container remove_db_storage_folder create_db_storage_folder clean re_run swag-init
