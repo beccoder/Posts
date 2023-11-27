@@ -34,11 +34,11 @@ type LikeModel struct {
 }
 
 type CommentModel struct {
-	Id            primitive.ObjectID `bson:"_id,omitempty"`
-	PostId        primitive.ObjectID `bson:"post_id"`
-	CommentedById primitive.ObjectID `bson:"commented_by_id"`
-	ReplyPostId   primitive.ObjectID `bson:"reply_post_id,omitempty"`
-	Comment       string             `bson:"comment"`
-	CreatedAt     time.Time          `bson:"created_at"`
-	UpdatedAt     time.Time          `bson:"updated_at,omitempty"`
+	Id             primitive.ObjectID `bson:"_id,omitempty"`
+	PostId         primitive.ObjectID `bson:"post_id"`
+	CommentedById  primitive.ObjectID `bson:"commented_by_id"`
+	ReplyCommentId primitive.ObjectID `bson:"reply_comment_id,omitempty"`
+	Comment        string             `bson:"comment"`
+	CreatedAt      time.Time          `bson:"created_at"`
+	UpdatedAt      time.Time          `bson:"updated_at,omitempty"`
 }

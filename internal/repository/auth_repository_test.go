@@ -30,7 +30,7 @@ func TestAuthRepo_GetUser(t *testing.T) {
 				password: Blogs.GeneratePasswordHash("qwerty"),
 			},
 			Blogs.UserResponse{
-				Id:        idList[0],
+				Id:        userIdList[0],
 				Role:      "admin",
 				FirstName: "My updated firstname",
 				LastName:  "Khudoyarov",

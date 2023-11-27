@@ -8,11 +8,6 @@ import (
 	"testing"
 )
 
-var (
-	idList = []primitive.ObjectID{primitive.NewObjectID(), primitive.NewObjectID(), primitive.NewObjectID()}
-	testDB = StartTest()
-)
-
 func TestAdmRepo_CreateUser(t *testing.T) {
 	type fields struct {
 		db *mongo.Client
@@ -32,7 +27,7 @@ func TestAdmRepo_CreateUser(t *testing.T) {
 			"CreateUserTestAdminSuccess1",
 			fields{db: testDB},
 			args{input: Blogs.UserModel{
-				Id:        idList[0],
+				Id:        userIdList[0],
 				Role:      "admin",
 				FirstName: "Bekhzod",
 				LastName:  "Khudoyarov",
@@ -41,14 +36,14 @@ func TestAdmRepo_CreateUser(t *testing.T) {
 				Email:     "bekhzodkhudoyarov@gmail.com",
 				Bio:       "I am admin",
 			}},
-			idList[0],
+			userIdList[0],
 			false,
 		},
 		{
 			"CreateUserTestAdminFailDuplicateUsername",
 			fields{db: testDB},
 			args{input: Blogs.UserModel{
-				Id:        idList[1],
+				Id:        userIdList[1],
 				Role:      "admin",
 				FirstName: "Bekhzod",
 				LastName:  "Khudoyarov",
@@ -64,7 +59,7 @@ func TestAdmRepo_CreateUser(t *testing.T) {
 			"CreateUserTestAdminSuccess2",
 			fields{db: testDB},
 			args{input: Blogs.UserModel{
-				Id:        idList[2],
+				Id:        userIdList[2],
 				Role:      "admin",
 				FirstName: "Bekhzod",
 				LastName:  "Khudoyarov",
@@ -73,7 +68,39 @@ func TestAdmRepo_CreateUser(t *testing.T) {
 				Email:     "example@gmail.com",
 				Bio:       "I am admin",
 			}},
-			idList[2],
+			userIdList[2],
+			false,
+		},
+		{
+			"CreateUserTestUserSuccess3",
+			fields{db: testDB},
+			args{input: Blogs.UserModel{
+				Id:        userIdList[3],
+				Role:      "user",
+				FirstName: "Userbek",
+				LastName:  "Userov",
+				Username:  "user",
+				Password:  Blogs.GeneratePasswordHash("user"),
+				Email:     "user@gmail.com",
+				Bio:       "I am user",
+			}},
+			userIdList[3],
+			false,
+		},
+		{
+			"CreateUserTestAuthorSuccess4",
+			fields{db: testDB},
+			args{input: Blogs.UserModel{
+				Id:        userIdList[4],
+				Role:      "author",
+				FirstName: "Authorbek",
+				LastName:  "Authorov",
+				Username:  "author",
+				Password:  Blogs.GeneratePasswordHash("author"),
+				Email:     "author@gmail.com",
+				Bio:       "I am author",
+			}},
+			userIdList[4],
 			false,
 		},
 	}
@@ -108,7 +135,7 @@ func TestAdmRepo_GetAllUsers(t *testing.T) {
 		{
 			"GetAllUsersSuccess",
 			fields{db: testDB},
-			2,
+			4,
 			false,
 		},
 	}
@@ -122,7 +149,7 @@ func TestAdmRepo_GetAllUsers(t *testing.T) {
 				t.Errorf("GetAllUsers() error = %v, wantErr %v", err, tt.wantErr)
 				return
 			}
-			if len(response) != 2 {
+			if len(response) != tt.want {
 				t.Errorf("GetAllUsers() got = %v, want %v", len(response), tt.want)
 			}
 		})
@@ -146,9 +173,9 @@ func TestAdmRepo_GetUserById(t *testing.T) {
 		{
 			"GetUserById_1",
 			fields{db: testDB},
-			args{userId: idList[0]},
+			args{userId: userIdList[0]},
 			Blogs.UserResponse{
-				Id:        idList[0],
+				Id:        userIdList[0],
 				Role:      "admin",
 				FirstName: "Bekhzod",
 				LastName:  "Khudoyarov",
@@ -161,9 +188,9 @@ func TestAdmRepo_GetUserById(t *testing.T) {
 		{
 			"GetUserById_2",
 			fields{db: testDB},
-			args{userId: idList[2]},
+			args{userId: userIdList[2]},
 			Blogs.UserResponse{
-				Id:        idList[2],
+				Id:        userIdList[2],
 				Role:      "admin",
 				FirstName: "Bekhzod",
 				LastName:  "Khudoyarov",
@@ -212,7 +239,7 @@ func TestAdmRepo_UpdateUser(t *testing.T) {
 			"UpdateUserSuccess_1",
 			fields{db: testDB},
 			args{
-				userId: idList[0],
+				userId: userIdList[0],
 				input:  Blogs.UpdateUserRequest{FirstName: &UpdatedStr},
 			},
 			false,
@@ -246,13 +273,13 @@ func TestAdmRepo_DeleteUser(t *testing.T) {
 		{
 			"DeleteUserSuccess_1",
 			fields{db: testDB},
-			args{userId: idList[2]},
+			args{userId: userIdList[2]},
 			false,
 		},
 		{
 			"DeleteUserFail_1",
 			fields{db: testDB},
-			args{userId: idList[2]},
+			args{userId: userIdList[2]},
 			true,
 		},
 	}
@@ -285,9 +312,9 @@ func TestAdmRepo_GetUserById_2(t *testing.T) {
 		{
 			"GetUserById_3",
 			fields{db: testDB},
-			args{userId: idList[0]},
+			args{userId: userIdList[0]},
 			Blogs.UserResponse{
-				Id:        idList[0],
+				Id:        userIdList[0],
 				Role:      "admin",
 				FirstName: "My updated firstname",
 				LastName:  "Khudoyarov",
@@ -300,7 +327,7 @@ func TestAdmRepo_GetUserById_2(t *testing.T) {
 		{
 			"GetUserByIdFail_4",
 			fields{db: testDB},
-			args{userId: idList[2]},
+			args{userId: userIdList[2]},
 			Blogs.UserResponse{},
 			true,
 		},

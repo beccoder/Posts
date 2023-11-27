@@ -236,10 +236,10 @@ func (h *Handler) createComment(c *gin.Context) {
 	}
 
 	createCommentData := Blogs.CommentModel{
-		PostId:        postId,
-		CommentedById: userId,
-		ReplyPostId:   input.ReplyPostId,
-		Comment:       input.Comment,
+		PostId:         postId,
+		CommentedById:  userId,
+		ReplyCommentId: input.ReplyCommentId,
+		Comment:        input.Comment,
 	}
 
 	id, err := h.services.CreateComment(createCommentData)

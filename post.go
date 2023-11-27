@@ -31,21 +31,21 @@ type LikeResponse struct {
 }
 
 type CreateCommentRequest struct {
-	ReplyPostId primitive.ObjectID `json:"reply_post_id,omitempty"`
-	Comment     string             `json:"comment" binding:"required"`
+	ReplyCommentId primitive.ObjectID `json:"reply_comment_id,omitempty"`
+	Comment        string             `json:"comment" binding:"required"`
 }
 
 type UpdateCommentRequest struct {
-	ReplyPostId *primitive.ObjectID `json:"reply_post_id"`
-	Comment     *string             `json:"comment"`
+	ReplyCommentId *primitive.ObjectID `json:"reply_comment_id"`
+	Comment        *string             `json:"comment"`
 }
 
 type CommentResponse struct {
-	Id            primitive.ObjectID `json:"_id,omitempty" bson:"_id,omitempty"`
-	PostId        primitive.ObjectID `json:"post_id" bson:"post_id"`
-	CommentedById primitive.ObjectID `json:"commented_by_id" bson:"commented_by_id"`
-	ReplyPostId   primitive.ObjectID `json:"reply_post_id,omitempty" bson:"reply_post_id,omitempty"`
-	Comment       string             `json:"comment" bson:"comment"`
-	CreatedAt     time.Time          `json:"created_at" bson:"created_at"`
-	UpdatedAt     *time.Time         `json:"updated_at,omitempty" bson:"updated_at,omitempty"`
+	Id             primitive.ObjectID `json:"_id,omitempty" bson:"_id,omitempty"`
+	PostId         primitive.ObjectID `json:"post_id" bson:"post_id"`
+	CommentedById  primitive.ObjectID `json:"commented_by_id" bson:"commented_by_id"`
+	ReplyCommentId primitive.ObjectID `json:"reply_comment_id,omitempty" bson:"reply_comment_id,omitempty"`
+	Comment        string             `json:"comment" bson:"comment"`
+	CreatedAt      time.Time          `json:"created_at" bson:"created_at"`
+	UpdatedAt      *time.Time         `json:"updated_at,omitempty" bson:"updated_at,omitempty"`
 }

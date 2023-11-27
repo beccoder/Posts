@@ -146,8 +146,8 @@ func (p *PostsRepo) UpdateComment(commentId primitive.ObjectID, input Blogs.Upda
 		update = append(update, bson.E{"$set", bson.D{{"comment", *input.Comment}}})
 	}
 
-	if input.ReplyPostId != nil {
-		update = append(update, bson.E{"$set", bson.D{{"reply_post_id", *input.ReplyPostId}}})
+	if input.ReplyCommentId != nil {
+		update = append(update, bson.E{"$set", bson.D{{"reply_post_id", *input.ReplyCommentId}}})
 	}
 
 	if len(update) == 0 {
