@@ -2,7 +2,7 @@ include .env
 
 DB_STORAGE_FOLDER=.db-data
 
-all: prod_var create_db_storage_folder build_image compose_up run
+all: test_var create_db_storage_folder build_image compose_up run_test prod_var run
 
 run:
 	go run cmd/main.go
@@ -26,7 +26,7 @@ remove_db_storage_folder:
 	sudo rm -rf ${DB_STORAGE_FOLDER}
 
 create_db_storage_folder:
-	mkdir ${DB_STORAGE_FOLDER}
+	@test -d $(DB_STORAGE_FOLDER) || mkdir -p $(DB_STORAGE_FOLDER)
 
 test_var:
 	sed -i '/^RUN_MODE=/d' .env

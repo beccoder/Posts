@@ -2,8 +2,11 @@ package repository
 
 import (
 	"Blogs"
+	"context"
+	"github.com/spf13/viper"
 	"go.mongodb.org/mongo-driver/bson/primitive"
 	"go.mongodb.org/mongo-driver/mongo"
+	"log"
 	"reflect"
 	"testing"
 )
@@ -837,5 +840,15 @@ func TestPostsRepo_UnlikePost(t *testing.T) {
 				t.Errorf("UnlikePost() error = %v, wantErr %v", err, tt.wantErr)
 			}
 		})
+	}
+}
+
+func TestCloseDB(t *testing.T) {
+	err := testDB.Database(viper.GetString("MONGO.DATABASE")).Drop(context.TODO())
+	if err != nil {
+		log.Fatal(err)
+	}
+	if err = testDB.Disconnect(context.TODO()); err != nil {
+		log.Fatalf("Error occured on db connection close: %s", err.Error())
 	}
 }
