@@ -1,4 +1,12 @@
 services:
+  blogs-app:
+    build: ./
+    command: ./blogs-app
+    ports:
+      - 8080:8080
+    depends_on:
+      db:
+        condition: service_healthy
   db:
     image: mongo:4.4
     container_name: ${DB_CONTAINER_NAME}
@@ -6,6 +14,11 @@ services:
     environment:
       MONGO_INITDB_ROOT_USERNAME: ${MONGODB_USERNAME}
       MONGO_INITDB_ROOT_PASSWORD: ${MONGODB_PASSWORD}
+    healthcheck:
+      test: [ "CMD", "mongo", "--eval", "db.runCommand({ ping: 1 })" ]
+      interval: 5s
+      timeout: 5s
+      retries: 5
     ports:
       - 27018:27017
     volumes:
