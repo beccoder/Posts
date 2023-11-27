@@ -486,3 +486,356 @@ func TestPostsRepo_CreateComment(t *testing.T) {
 		})
 	}
 }
+
+func TestPostsRepo_GetAllComments(t *testing.T) {
+	type fields struct {
+		db *mongo.Client
+	}
+	type args struct {
+		postId primitive.ObjectID
+	}
+	tests := []struct {
+		name    string
+		fields  fields
+		args    args
+		want    []Blogs.CommentResponse
+		wantErr bool
+	}{
+		{
+			"GetAllComments_Success_1",
+			fields{db: testDB},
+			args{postId: postIdList[0]},
+			[]Blogs.CommentResponse{
+				{
+					Id:             comments[0].Id,
+					PostId:         comments[0].PostId,
+					CommentedById:  comments[0].CommentedById,
+					ReplyCommentId: comments[0].ReplyCommentId,
+					Comment:        comments[0].Comment,
+				},
+				{
+					Id:             comments[1].Id,
+					PostId:         comments[1].PostId,
+					CommentedById:  comments[1].CommentedById,
+					ReplyCommentId: comments[1].ReplyCommentId,
+					Comment:        comments[1].Comment,
+				},
+				{
+					Id:             comments[2].Id,
+					PostId:         comments[2].PostId,
+					CommentedById:  comments[2].CommentedById,
+					ReplyCommentId: comments[2].ReplyCommentId,
+					Comment:        comments[2].Comment,
+				},
+			},
+			false,
+		},
+	}
+	for _, tt := range tests {
+		t.Run(tt.name, func(t *testing.T) {
+			p := &PostsRepo{
+				db: tt.fields.db,
+			}
+			got, err := p.GetAllComments(tt.args.postId)
+			if (err != nil) != tt.wantErr {
+				t.Errorf("GetAllComments() error = %v, wantErr %v", err, tt.wantErr)
+				return
+			}
+			got[0].CreatedAt = tt.want[0].CreatedAt
+			got[1].CreatedAt = tt.want[1].CreatedAt
+			got[2].CreatedAt = tt.want[2].CreatedAt
+			if !reflect.DeepEqual(got, tt.want) {
+				t.Errorf("GetAllComments() got = %v, want %v", got, tt.want)
+			}
+		})
+	}
+}
+
+func TestPostsRepo_GetCommentById(t *testing.T) {
+	type fields struct {
+		db *mongo.Client
+	}
+	type args struct {
+		commentId primitive.ObjectID
+	}
+	tests := []struct {
+		name    string
+		fields  fields
+		args    args
+		want    Blogs.CommentResponse
+		wantErr bool
+	}{
+		{
+			"GetCommentById_Success_1",
+			fields{db: testDB},
+			args{commentId: comments[0].Id},
+			Blogs.CommentResponse{
+				Id:             comments[0].Id,
+				PostId:         comments[0].PostId,
+				CommentedById:  comments[0].CommentedById,
+				ReplyCommentId: comments[0].ReplyCommentId,
+				Comment:        comments[0].Comment,
+			},
+			false,
+		},
+		{
+			"GetCommentById_Success_2",
+			fields{db: testDB},
+			args{commentId: comments[1].Id},
+			Blogs.CommentResponse{
+				Id:             comments[1].Id,
+				PostId:         comments[1].PostId,
+				CommentedById:  comments[1].CommentedById,
+				ReplyCommentId: comments[1].ReplyCommentId,
+				Comment:        comments[1].Comment,
+			},
+			false,
+		},
+		{
+			"GetCommentById_Success_1",
+			fields{db: testDB},
+			args{commentId: comments[2].Id},
+			Blogs.CommentResponse{
+				Id:             comments[2].Id,
+				PostId:         comments[2].PostId,
+				CommentedById:  comments[2].CommentedById,
+				ReplyCommentId: comments[2].ReplyCommentId,
+				Comment:        comments[2].Comment,
+			},
+			false,
+		},
+	}
+	for _, tt := range tests {
+		t.Run(tt.name, func(t *testing.T) {
+			p := &PostsRepo{
+				db: tt.fields.db,
+			}
+			got, err := p.GetCommentById(tt.args.commentId)
+			if (err != nil) != tt.wantErr {
+				t.Errorf("GetCommentById() error = %v, wantErr %v", err, tt.wantErr)
+				return
+			}
+			got.CreatedAt = tt.want.CreatedAt
+			if !reflect.DeepEqual(got, tt.want) {
+				t.Errorf("GetCommentById() got = %v, want %v", got, tt.want)
+			}
+		})
+	}
+}
+
+func TestPostsRepo_UpdateComment(t *testing.T) {
+	type fields struct {
+		db *mongo.Client
+	}
+	type args struct {
+		commentId primitive.ObjectID
+		input     Blogs.UpdateCommentRequest
+	}
+	tests := []struct {
+		name    string
+		fields  fields
+		args    args
+		wantErr bool
+	}{
+		{
+			"UpdateComment_Success_1",
+			fields{db: testDB},
+			args{
+				commentId: comments[0].Id,
+				input: Blogs.UpdateCommentRequest{
+					Comment: &commentsUpdate[0],
+				},
+			},
+			false,
+		},
+		{
+			"UpdateComment_Success_2",
+			fields{db: testDB},
+			args{
+				commentId: comments[1].Id,
+				input: Blogs.UpdateCommentRequest{
+					Comment: &commentsUpdate[1],
+				},
+			},
+			false,
+		},
+		{
+			"UpdateComment_Success_3",
+			fields{db: testDB},
+			args{
+				commentId: comments[2].Id,
+				input: Blogs.UpdateCommentRequest{
+					Comment: &commentsUpdate[2],
+				},
+			},
+			false,
+		},
+		{
+			"UpdateComment_Fail_1",
+			fields{db: testDB},
+			args{
+				commentId: primitive.NewObjectID(),
+				input: Blogs.UpdateCommentRequest{
+					Comment: &commentsUpdate[2],
+				},
+			},
+			true,
+		},
+	}
+	for _, tt := range tests {
+		t.Run(tt.name, func(t *testing.T) {
+			p := &PostsRepo{
+				db: tt.fields.db,
+			}
+			if err := p.UpdateComment(tt.args.commentId, tt.args.input); (err != nil) != tt.wantErr {
+				t.Errorf("UpdateComment() error = %v, wantErr %v", err, tt.wantErr)
+			}
+		})
+	}
+}
+
+func TestPostsRepo_DeleteComment(t *testing.T) {
+	type fields struct {
+		db *mongo.Client
+	}
+	type args struct {
+		commentId primitive.ObjectID
+	}
+	tests := []struct {
+		name    string
+		fields  fields
+		args    args
+		wantErr bool
+	}{
+		{
+			"DeleteComment_Success_1",
+			fields{db: testDB},
+			args{commentId: comments[2].Id},
+			false,
+		},
+		{
+			"DeleteComment_Fail_1",
+			fields{db: testDB},
+			args{commentId: comments[2].Id},
+			true,
+		},
+	}
+	for _, tt := range tests {
+		t.Run(tt.name, func(t *testing.T) {
+			p := &PostsRepo{
+				db: tt.fields.db,
+			}
+			if err := p.DeleteComment(tt.args.commentId); (err != nil) != tt.wantErr {
+				t.Errorf("DeleteComment() error = %v, wantErr %v", err, tt.wantErr)
+			}
+		})
+	}
+}
+
+func TestPostsRepo_AddLike(t *testing.T) {
+	type fields struct {
+		db *mongo.Client
+	}
+	type args struct {
+		postId    primitive.ObjectID
+		likedById primitive.ObjectID
+	}
+	tests := []struct {
+		name    string
+		fields  fields
+		args    args
+		wantErr bool
+	}{
+		{
+			"AddLike_Success_1",
+			fields{db: testDB},
+			args{
+				postId:    postIdList[0],
+				likedById: userIdList[3],
+			},
+			false,
+		},
+		{
+			"AddLike_AlreadyLiked_Fail_1",
+			fields{db: testDB},
+			args{
+				postId:    postIdList[0],
+				likedById: userIdList[3],
+			},
+			true,
+		},
+		{
+			"AddLike_InvalidInput_Fail_1",
+			fields{db: testDB},
+			args{
+				postId:    primitive.NewObjectID(),
+				likedById: userIdList[3],
+			},
+			true,
+		},
+	}
+	for _, tt := range tests {
+		t.Run(tt.name, func(t *testing.T) {
+			p := &PostsRepo{
+				db: tt.fields.db,
+			}
+			if err := p.AddLike(tt.args.postId, tt.args.likedById); (err != nil) != tt.wantErr {
+				t.Errorf("AddLike() error = %v, wantErr %v", err, tt.wantErr)
+			}
+		})
+	}
+}
+
+func TestPostsRepo_UnlikePost(t *testing.T) {
+	type fields struct {
+		db *mongo.Client
+	}
+	type args struct {
+		postId    primitive.ObjectID
+		likedById primitive.ObjectID
+	}
+	tests := []struct {
+		name    string
+		fields  fields
+		args    args
+		wantErr bool
+	}{
+		{
+			"UnLike_Success_1",
+			fields{db: testDB},
+			args{
+				postId:    postIdList[0],
+				likedById: userIdList[3],
+			},
+			false,
+		},
+		{
+			"UnLike_AlreadyUnliked_Fail_1",
+			fields{db: testDB},
+			args{
+				postId:    postIdList[0],
+				likedById: userIdList[3],
+			},
+			true,
+		},
+		{
+			"UnLike_InvalidInput_Fail_1",
+			fields{db: testDB},
+			args{
+				postId:    primitive.NewObjectID(),
+				likedById: userIdList[3],
+			},
+			true,
+		},
+	}
+	for _, tt := range tests {
+		t.Run(tt.name, func(t *testing.T) {
+			p := &PostsRepo{
+				db: tt.fields.db,
+			}
+			if err := p.UnlikePost(tt.args.postId, tt.args.likedById); (err != nil) != tt.wantErr {
+				t.Errorf("UnlikePost() error = %v, wantErr %v", err, tt.wantErr)
+			}
+		})
+	}
+}

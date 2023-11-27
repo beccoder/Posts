@@ -43,6 +43,34 @@ var (
 			Text:  "My text 3 update",
 		},
 	}
+	comments = []Blogs.CommentModel{
+		{
+			Id:            commentIdList[0],
+			PostId:        postIdList[0],
+			CommentedById: userIdList[3],
+			Comment:       "This is my first comment",
+		},
+		{
+			Id:             commentIdList[1],
+			PostId:         postIdList[0],
+			CommentedById:  userIdList[4],
+			ReplyCommentId: commentIdList[0],
+			Comment:        "This is my reply comment for first comment",
+		},
+		{
+			Id:             commentIdList[2],
+			PostId:         postIdList[0],
+			CommentedById:  userIdList[4],
+			ReplyCommentId: commentIdList[0],
+			Comment:        "This is my second reply comment for first comment",
+		},
+	}
+
+	commentsUpdate = []string{
+		"This is my first comment UPDATE",
+		"This is my reply comment for first comment UPDATE",
+		"This is my second reply comment for first comment UPDATE",
+	}
 
 	testDB = StartTest()
 )

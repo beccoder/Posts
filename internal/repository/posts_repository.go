@@ -8,7 +8,6 @@ import (
 	"go.mongodb.org/mongo-driver/bson"
 	"go.mongodb.org/mongo-driver/bson/primitive"
 	"go.mongodb.org/mongo-driver/mongo"
-	"log"
 	"time"
 )
 
@@ -158,7 +157,15 @@ func (p *PostsRepo) UpdateComment(commentId primitive.ObjectID, input Blogs.Upda
 	update = append(update, bson.E{"$set", bson.D{{"updated_at", &updatedTime}}})
 	collComments := p.db.Database(viper.GetString("MONGO.DATABASE")).Collection("comments")
 
-	_, err := collComments.UpdateOne(context.TODO(), bson.D{{"_id", commentId}}, update)
+	res, err := collComments.UpdateOne(context.TODO(), bson.D{{"_id", commentId}}, update)
+	if res.MatchedCount == 0 {
+		return errors.New("invalid input, no matching id")
+	}
+
+	if res.ModifiedCount == 0 {
+		return errors.New("nothing updated")
+	}
+
 	return err
 }
 
@@ -172,15 +179,16 @@ func (p *PostsRepo) DeleteComment(commentId primitive.ObjectID) error {
 	if result.DeletedCount == 0 {
 		return errors.New("no comments deleted")
 	}
+
 	return nil
 }
 
 func (p *PostsRepo) AddLike(postId primitive.ObjectID, likedById primitive.ObjectID) error {
 	post, err := p.GetPostById(postId)
 	if err != nil {
-		log.Println(err)
 		return err
 	}
+
 	if post.Likes != nil {
 		for _, like := range post.Likes {
 			if like.LikedById == likedById {
@@ -207,12 +215,32 @@ func (p *PostsRepo) AddLike(postId primitive.ObjectID, likedById primitive.Objec
 }
 
 func (p *PostsRepo) UnlikePost(postId primitive.ObjectID, likedById primitive.ObjectID) error {
+	post, err := p.GetPostById(postId)
+	if err != nil {
+		return err
+	}
+
+	liked := false
+	if post.Likes != nil {
+		for _, like := range post.Likes {
+			if like.LikedById == likedById {
+				liked = true
+			}
+		}
+	}
+	if liked == false {
+		return errors.New("already unliked")
+	}
+
 	filter := bson.D{{"_id", postId}}
 	update := bson.D{{"$pull", bson.D{{"likes", bson.D{{"liked_by_id", likedById}}}}}}
 
 	collPosts := p.db.Database(viper.GetString("MONGO.DATABASE")).Collection("posts")
 
-	_, err := collPosts.UpdateOne(context.TODO(), filter, update)
+	res, err := collPosts.UpdateOne(context.TODO(), filter, update)
+	if res.MatchedCount == 0 {
+		return errors.New("invalid post id")
+	}
 	if err != nil {
 		return err
 	}
