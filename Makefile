@@ -29,17 +29,12 @@ create_db_storage_folder:
 	@test -d $(DB_STORAGE_FOLDER) || mkdir -p $(DB_STORAGE_FOLDER)
 
 test_var:
-	sed -i '/^RUN_MODE=/d' .env
-	echo "RUN_MODE=test" >> .env
-
+	sed -i '/^APPLICATION_MODE=/d' .env
+	echo "APPLICATION_MODE=TESTING" >> .env
 
 prod_var:
-	sed -i '/^RUN_MODE=/d' .env
-	echo "RUN_MODE=prod" >> .env
-
-docker_var:
-	sed -i '/^RUN_MODE=/d' .env
-	echo "RUN_MODE=docker" >> .env
+	sed -i '/^APPLICATION_MODE=/d' .env
+	echo "APPLICATION_MODE=PRODUCTION" >> .env
 
 swag_init:
 	swag init -g internal/app.go

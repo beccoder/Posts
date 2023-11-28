@@ -4,22 +4,22 @@ import (
 	"Blogs"
 	"context"
 	"errors"
-	"github.com/spf13/viper"
 	"go.mongodb.org/mongo-driver/bson"
 	"go.mongodb.org/mongo-driver/mongo"
 )
 
 type AuthRepo struct {
-	db *mongo.Client
+	client   *mongo.Client
+	database string
 }
 
-func NewAuthRepo(db *mongo.Client) *AuthRepo {
-	return &AuthRepo{db: db}
+func NewAuthRepo(client *mongo.Client, database string) *AuthRepo {
+	return &AuthRepo{client: client, database: database}
 }
 
 func (r *AuthRepo) GetUser(username, password string) (Blogs.UserResponse, error) {
 	var user Blogs.UserResponse
-	coll := r.db.Database(viper.GetString("MONGO.DATABASE")).Collection("users")
+	coll := r.client.Database(r.database).Collection("users")
 	err := coll.FindOne(context.TODO(), bson.D{{"username", username}, {"password", password}}).Decode(&user)
 	if err != nil {
 		if errors.Is(err, mongo.ErrNoDocuments) {

@@ -9,7 +9,8 @@ import (
 
 func TestAuthRepo_GetUser(t *testing.T) {
 	type fields struct {
-		db *mongo.Client
+		client   *mongo.Client
+		database string
 	}
 	type args struct {
 		username string
@@ -24,7 +25,7 @@ func TestAuthRepo_GetUser(t *testing.T) {
 	}{
 		{
 			"GetUserSuccess",
-			fields{db: testDB},
+			fields{client: testClient, database: database},
 			args{
 				username: "beccoder",
 				password: Blogs.GeneratePasswordHash("qwerty"),
@@ -44,7 +45,8 @@ func TestAuthRepo_GetUser(t *testing.T) {
 	for _, tt := range tests {
 		t.Run(tt.name, func(t *testing.T) {
 			r := &AuthRepo{
-				db: tt.fields.db,
+				client:   tt.fields.client,
+				database: tt.fields.database,
 			}
 			got, err := r.GetUser(tt.args.username, tt.args.password)
 			if (err != nil) != tt.wantErr {

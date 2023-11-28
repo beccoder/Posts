@@ -3,6 +3,7 @@ module Blogs
 go 1.21
 
 require (
+	github.com/caarlos0/env/v9 v9.0.0
 	github.com/dgrijalva/jwt-go v3.2.0+incompatible
 	github.com/gin-gonic/gin v1.9.1
 	github.com/joho/godotenv v1.5.1
@@ -12,6 +13,7 @@ require (
 	github.com/swaggo/gin-swagger v1.6.0
 	github.com/swaggo/swag v1.16.2
 	go.mongodb.org/mongo-driver v1.13.0
+	gopkg.in/yaml.v3 v3.0.1
 )
 
 require (
@@ -72,5 +74,4 @@ require (
 	google.golang.org/protobuf v1.31.0 // indirect
 	gopkg.in/ini.v1 v1.67.0 // indirect
 	gopkg.in/yaml.v2 v2.4.0 // indirect
-	gopkg.in/yaml.v3 v3.0.1 // indirect
 )

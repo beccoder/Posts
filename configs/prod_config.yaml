@@ -1,14 +1,11 @@
-PROJECT:
-  NAME: "blogs"
-  VERSION: "0.0.1"
-  SWAGGER_ENABLED: true
+project:
+  name: "blogs"
+  version: "0.0.1"
+  swagger_enabled: true
 
-MONGO:
-  PROTOCOL: "mongodb"
-  HOST: "127.0.0.1"
-  PORT: "27017"
-  DATABASE: "blogs"
+mongo:
+  database: "blogs"
 
-HTTP:
-  HOST: "127.0.0.1"
-  PORT: "8080"
+http:
+  host: 127.0.0.1
+  port: 8080

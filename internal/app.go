@@ -7,8 +7,6 @@ import (
 	"Blogs/internal/repository"
 	"Blogs/internal/service"
 	"context"
-	"github.com/joho/godotenv"
-	"github.com/spf13/viper"
 	"log"
 	"os"
 	"os/signal"
@@ -26,32 +24,28 @@ import (
 // @in header
 // @name Authorization
 
-func Run() {
-	if err := LoadEnvConfig(); err != nil {
-		log.Fatal(err)
-	}
-
-	dbURI := viper.GetString("MONGO.PROTOCOL") + "://" + viper.GetString("MONGO.HOST") + ":" + viper.GetString("MONGO.PORT")
-	client, err := repository.ConnectMongoDB(dbURI)
+func Run(cfg *Blogs.Config) {
+	cfg.MakeMongoDBURL()
+	client, err := repository.ConnectMongoDB(cfg.MONGODB.URI, cfg.MONGODB.Username, cfg.MONGODB.Password)
 	if err != nil {
 		panic(err)
 	}
-	err = repository.InitSchemas(client)
+	err = repository.InitSchemas(client, cfg.MONGODB.Database)
 	if err != nil {
 		panic(err)
 	}
-	repos := repository.NewRepository(client)
+	repos := repository.NewRepository(client, cfg.MONGODB.Database)
 	services := service.NewService(repos)
 	handlers := handler.NewHandler(services)
 	server := new(Blogs.Server)
 	go func() {
-		httpAddr := viper.GetString("HTTP.HOST") + ":" + viper.GetString("HTTP.PORT")
-		if err := server.Run(httpAddr, handlers.InitRoutes()); err != nil {
+		cfg.MakeHttpURL()
+		if err := server.Run(cfg.Http.URL, handlers.InitRoutes()); err != nil {
 			log.Fatalf("Error occured while running http server: %s", err.Error())
 		}
 	}()
 
-	log.Print("Blogs Started")
+	log.Println("Blogs Started")
 
 	quit := make(chan os.Signal, 1)
 	signal.Notify(quit, syscall.SIGTERM, syscall.SIGINT)
@@ -68,28 +62,7 @@ func Run() {
 	}
 }
 
-func InitConfig() error {
-	viper.AddConfigPath("configs")
-	if os.Getenv("RUN_MODE") == "test" {
-		viper.SetConfigName("test_config")
-	} else {
-		viper.SetConfigName("prod_config")
-	}
-	return viper.ReadInConfig()
-}
-
-func LoadEnvConfig() error {
-	err := InitConfig()
-	if err != nil {
-		return err
-	}
-	if err := godotenv.Load(); err != nil {
-		return err
-	}
-	return nil
-}
-
-func HandleCLA(args []string) {
+func HandleCLA(args []string, cfg *Blogs.Config) {
 	if len(os.Args) != 4 {
 		log.Fatalf("invalid args format:\norder of arguments to create superadmin: username password role")
 	}
@@ -98,20 +71,13 @@ func HandleCLA(args []string) {
 	password := args[2]
 	role := args[3]
 
-	if err := godotenv.Load(); err != nil {
-		log.Fatal(err)
-	}
-	if err := InitConfig(); err != nil {
-		log.Fatal(err)
-	}
-
-	dbURI := viper.GetString("MONGO.PROTOCOL") + "://" + viper.GetString("MONGO.HOST") + ":" + viper.GetString("MONGO.PORT")
-	client, err := repository.ConnectMongoDB(dbURI)
-	err = repository.InitSchemas(client)
+	cfg.MakeMongoDBURL()
+	client, err := repository.ConnectMongoDB(cfg.MONGODB.URI, cfg.MONGODB.Username, cfg.MONGODB.Password)
+	err = repository.InitSchemas(client, cfg.MONGODB.Database)
 	if err != nil {
 		panic(err)
 	}
-	repos := repository.NewRepository(client)
+	repos := repository.NewRepository(client, cfg.MONGODB.Database)
 	services := service.NewService(repos)
 	id, err := services.CreateUser(Blogs.UserModel{
 		Role:     role,

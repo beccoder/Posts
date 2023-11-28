@@ -3,7 +3,6 @@ package repository
 import (
 	"Blogs"
 	"context"
-	"github.com/spf13/viper"
 	"go.mongodb.org/mongo-driver/bson/primitive"
 	"go.mongodb.org/mongo-driver/mongo"
 	"log"
@@ -13,7 +12,8 @@ import (
 
 func TestPostsRepo_CreatePosts(t *testing.T) {
 	type fields struct {
-		db *mongo.Client
+		client   *mongo.Client
+		database string
 	}
 	type args struct {
 		post Blogs.PostModel
@@ -27,7 +27,7 @@ func TestPostsRepo_CreatePosts(t *testing.T) {
 	}{
 		{
 			"CreatePostsTestSuccess_1",
-			fields{db: testDB},
+			fields{client: testClient, database: database},
 			args{post: Blogs.PostModel{
 				Id:        postIdList[0],
 				AuthorsId: userIdList[0],
@@ -39,7 +39,7 @@ func TestPostsRepo_CreatePosts(t *testing.T) {
 		},
 		{
 			"CreatePostsTestSuccess_2",
-			fields{db: testDB},
+			fields{client: testClient, database: database},
 			args{post: Blogs.PostModel{
 				Id:        postIdList[1],
 				AuthorsId: userIdList[0],
@@ -51,7 +51,7 @@ func TestPostsRepo_CreatePosts(t *testing.T) {
 		},
 		{
 			"CreatePostsTestSuccess_3",
-			fields{db: testDB},
+			fields{client: testClient, database: database},
 			args{post: Blogs.PostModel{
 				Id:        postIdList[2],
 				AuthorsId: userIdList[0],
@@ -61,21 +61,9 @@ func TestPostsRepo_CreatePosts(t *testing.T) {
 			postIdList[2],
 			false,
 		},
-		//{
-		//	"CreatePostsTestFail_4",
-		//	fields{db: testDB},
-		//	args{post: Blogs.PostModel{
-		//		Id:        postIdList[3],
-		//		AuthorsId: userIdList[3],
-		//		Title:     posts[2].Title,
-		//		Text:      posts[2].Text,
-		//	}},
-		//	postIdList[3],
-		//	true,
-		//},
 		{
 			"CreatePostsTestSuccess_5",
-			fields{db: testDB},
+			fields{client: testClient, database: database},
 			args{post: Blogs.PostModel{
 				Id:        postIdList[3],
 				AuthorsId: userIdList[4],
@@ -89,7 +77,8 @@ func TestPostsRepo_CreatePosts(t *testing.T) {
 	for _, tt := range tests {
 		t.Run(tt.name, func(t *testing.T) {
 			p := &PostsRepo{
-				db: tt.fields.db,
+				client:   tt.fields.client,
+				database: tt.fields.database,
 			}
 			got, err := p.CreatePosts(tt.args.post)
 			if (err != nil) != tt.wantErr {
@@ -105,7 +94,8 @@ func TestPostsRepo_CreatePosts(t *testing.T) {
 
 func TestPostsRepo_GetMyAllPosts(t *testing.T) {
 	type fields struct {
-		db *mongo.Client
+		client   *mongo.Client
+		database string
 	}
 	type args struct {
 		userId primitive.ObjectID
@@ -119,7 +109,7 @@ func TestPostsRepo_GetMyAllPosts(t *testing.T) {
 	}{
 		{
 			"GetMyAllPosts_Success_1",
-			fields{db: testDB},
+			fields{client: testClient, database: database},
 			args{userId: userIdList[0]},
 			[]Blogs.PostResponse{
 				{
@@ -150,7 +140,8 @@ func TestPostsRepo_GetMyAllPosts(t *testing.T) {
 	for _, tt := range tests {
 		t.Run(tt.name, func(t *testing.T) {
 			p := &PostsRepo{
-				db: tt.fields.db,
+				client:   tt.fields.client,
+				database: tt.fields.database,
 			}
 			got, err := p.GetMyAllPosts(tt.args.userId)
 			if (err != nil) != tt.wantErr {
@@ -169,7 +160,8 @@ func TestPostsRepo_GetMyAllPosts(t *testing.T) {
 
 func TestPostsRepo_GetAllPosts(t *testing.T) {
 	type fields struct {
-		db *mongo.Client
+		client   *mongo.Client
+		database string
 	}
 	tests := []struct {
 		name    string
@@ -179,7 +171,7 @@ func TestPostsRepo_GetAllPosts(t *testing.T) {
 	}{
 		{
 			"GetAllPosts_Success_1",
-			fields{db: testDB},
+			fields{client: testClient, database: database},
 			[]Blogs.PostResponse{
 				{
 					Id:        postIdList[0],
@@ -216,7 +208,8 @@ func TestPostsRepo_GetAllPosts(t *testing.T) {
 	for _, tt := range tests {
 		t.Run(tt.name, func(t *testing.T) {
 			p := &PostsRepo{
-				db: tt.fields.db,
+				client:   tt.fields.client,
+				database: tt.fields.database,
 			}
 			got, err := p.GetAllPosts()
 			if (err != nil) != tt.wantErr {
@@ -236,7 +229,8 @@ func TestPostsRepo_GetAllPosts(t *testing.T) {
 
 func TestPostsRepo_GetPostById(t *testing.T) {
 	type fields struct {
-		db *mongo.Client
+		client   *mongo.Client
+		database string
 	}
 	type args struct {
 		postId primitive.ObjectID
@@ -250,7 +244,7 @@ func TestPostsRepo_GetPostById(t *testing.T) {
 	}{
 		{
 			"GetPostById_Success_1",
-			fields{db: testDB},
+			fields{client: testClient, database: database},
 			args{postId: postIdList[0]},
 			Blogs.PostResponse{
 				Id:        postIdList[0],
@@ -263,7 +257,7 @@ func TestPostsRepo_GetPostById(t *testing.T) {
 		},
 		{
 			"GetPostById_Success_2",
-			fields{db: testDB},
+			fields{client: testClient, database: database},
 			args{postId: postIdList[1]},
 			Blogs.PostResponse{
 				Id:        postIdList[1],
@@ -276,7 +270,7 @@ func TestPostsRepo_GetPostById(t *testing.T) {
 		},
 		{
 			"GetPostById_Success_3",
-			fields{db: testDB},
+			fields{client: testClient, database: database},
 			args{postId: postIdList[2]},
 			Blogs.PostResponse{
 				Id:        postIdList[2],
@@ -291,7 +285,8 @@ func TestPostsRepo_GetPostById(t *testing.T) {
 	for _, tt := range tests {
 		t.Run(tt.name, func(t *testing.T) {
 			p := &PostsRepo{
-				db: tt.fields.db,
+				client:   tt.fields.client,
+				database: tt.fields.database,
 			}
 			got, err := p.GetPostById(tt.args.postId)
 			if (err != nil) != tt.wantErr {
@@ -308,7 +303,8 @@ func TestPostsRepo_GetPostById(t *testing.T) {
 
 func TestPostsRepo_UpdatePost(t *testing.T) {
 	type fields struct {
-		db *mongo.Client
+		client   *mongo.Client
+		database string
 	}
 	type args struct {
 		postId primitive.ObjectID
@@ -322,7 +318,7 @@ func TestPostsRepo_UpdatePost(t *testing.T) {
 	}{
 		{
 			"UpdatePost_Success_1",
-			fields{db: testDB},
+			fields{client: testClient, database: database},
 			args{
 				postId: postIdList[0],
 				input: Blogs.UpdatePostRequest{
@@ -334,7 +330,7 @@ func TestPostsRepo_UpdatePost(t *testing.T) {
 		},
 		{
 			"UpdatePost_Success_2",
-			fields{db: testDB},
+			fields{client: testClient, database: database},
 			args{
 				postId: postIdList[1],
 				input: Blogs.UpdatePostRequest{
@@ -346,7 +342,7 @@ func TestPostsRepo_UpdatePost(t *testing.T) {
 		},
 		{
 			"UpdatePost_Success_3",
-			fields{db: testDB},
+			fields{client: testClient, database: database},
 			args{
 				postId: postIdList[2],
 				input: Blogs.UpdatePostRequest{
@@ -360,7 +356,8 @@ func TestPostsRepo_UpdatePost(t *testing.T) {
 	for _, tt := range tests {
 		t.Run(tt.name, func(t *testing.T) {
 			p := &PostsRepo{
-				db: tt.fields.db,
+				client:   tt.fields.client,
+				database: tt.fields.database,
 			}
 			if err := p.UpdatePost(tt.args.postId, tt.args.input); (err != nil) != tt.wantErr {
 				t.Errorf("UpdatePost() error = %v, wantErr %v", err, tt.wantErr)
@@ -371,7 +368,8 @@ func TestPostsRepo_UpdatePost(t *testing.T) {
 
 func TestPostsRepo_DeletePost(t *testing.T) {
 	type fields struct {
-		db *mongo.Client
+		client   *mongo.Client
+		database string
 	}
 	type args struct {
 		postId primitive.ObjectID
@@ -384,13 +382,13 @@ func TestPostsRepo_DeletePost(t *testing.T) {
 	}{
 		{
 			"DeletePost_Success_1",
-			fields{db: testDB},
+			fields{client: testClient, database: database},
 			args{postId: postIdList[2]},
 			false,
 		},
 		{
 			"DeletePost_Fail_2",
-			fields{db: testDB},
+			fields{client: testClient, database: database},
 			args{postId: postIdList[2]},
 			true,
 		},
@@ -398,7 +396,8 @@ func TestPostsRepo_DeletePost(t *testing.T) {
 	for _, tt := range tests {
 		t.Run(tt.name, func(t *testing.T) {
 			p := &PostsRepo{
-				db: tt.fields.db,
+				client:   tt.fields.client,
+				database: tt.fields.database,
 			}
 			if err := p.DeletePost(tt.args.postId); (err != nil) != tt.wantErr {
 				t.Errorf("DeletePost() error = %v, wantErr %v", err, tt.wantErr)
@@ -409,7 +408,8 @@ func TestPostsRepo_DeletePost(t *testing.T) {
 
 func TestPostsRepo_CreateComment(t *testing.T) {
 	type fields struct {
-		db *mongo.Client
+		client   *mongo.Client
+		database string
 	}
 	type args struct {
 		input Blogs.CommentModel
@@ -423,7 +423,7 @@ func TestPostsRepo_CreateComment(t *testing.T) {
 	}{
 		{
 			"CreateComment_Success_1",
-			fields{db: testDB},
+			fields{client: testClient, database: database},
 			args{input: Blogs.CommentModel{
 				Id:            commentIdList[0],
 				PostId:        postIdList[0],
@@ -435,7 +435,7 @@ func TestPostsRepo_CreateComment(t *testing.T) {
 		},
 		{
 			"CreateComment_Success_2",
-			fields{db: testDB},
+			fields{client: testClient, database: database},
 			args{input: Blogs.CommentModel{
 				Id:             commentIdList[1],
 				PostId:         postIdList[0],
@@ -448,7 +448,7 @@ func TestPostsRepo_CreateComment(t *testing.T) {
 		},
 		{
 			"CreateComment_Success_3",
-			fields{db: testDB},
+			fields{client: testClient, database: database},
 			args{input: Blogs.CommentModel{
 				Id:             commentIdList[2],
 				PostId:         postIdList[0],
@@ -461,7 +461,7 @@ func TestPostsRepo_CreateComment(t *testing.T) {
 		},
 		{
 			"CreateComment_Fail",
-			fields{db: testDB},
+			fields{client: testClient, database: database},
 			args{input: Blogs.CommentModel{
 				Id:             commentIdList[2],
 				PostId:         postIdList[0],    // no post
@@ -476,7 +476,8 @@ func TestPostsRepo_CreateComment(t *testing.T) {
 	for _, tt := range tests {
 		t.Run(tt.name, func(t *testing.T) {
 			p := &PostsRepo{
-				db: tt.fields.db,
+				client:   tt.fields.client,
+				database: tt.fields.database,
 			}
 			got, err := p.CreateComment(tt.args.input)
 			if (err != nil) != tt.wantErr {
@@ -492,7 +493,8 @@ func TestPostsRepo_CreateComment(t *testing.T) {
 
 func TestPostsRepo_GetAllComments(t *testing.T) {
 	type fields struct {
-		db *mongo.Client
+		client   *mongo.Client
+		database string
 	}
 	type args struct {
 		postId primitive.ObjectID
@@ -506,7 +508,7 @@ func TestPostsRepo_GetAllComments(t *testing.T) {
 	}{
 		{
 			"GetAllComments_Success_1",
-			fields{db: testDB},
+			fields{client: testClient, database: database},
 			args{postId: postIdList[0]},
 			[]Blogs.CommentResponse{
 				{
@@ -537,7 +539,8 @@ func TestPostsRepo_GetAllComments(t *testing.T) {
 	for _, tt := range tests {
 		t.Run(tt.name, func(t *testing.T) {
 			p := &PostsRepo{
-				db: tt.fields.db,
+				client:   tt.fields.client,
+				database: tt.fields.database,
 			}
 			got, err := p.GetAllComments(tt.args.postId)
 			if (err != nil) != tt.wantErr {
@@ -556,7 +559,8 @@ func TestPostsRepo_GetAllComments(t *testing.T) {
 
 func TestPostsRepo_GetCommentById(t *testing.T) {
 	type fields struct {
-		db *mongo.Client
+		client   *mongo.Client
+		database string
 	}
 	type args struct {
 		commentId primitive.ObjectID
@@ -570,7 +574,7 @@ func TestPostsRepo_GetCommentById(t *testing.T) {
 	}{
 		{
 			"GetCommentById_Success_1",
-			fields{db: testDB},
+			fields{client: testClient, database: database},
 			args{commentId: comments[0].Id},
 			Blogs.CommentResponse{
 				Id:             comments[0].Id,
@@ -583,7 +587,7 @@ func TestPostsRepo_GetCommentById(t *testing.T) {
 		},
 		{
 			"GetCommentById_Success_2",
-			fields{db: testDB},
+			fields{client: testClient, database: database},
 			args{commentId: comments[1].Id},
 			Blogs.CommentResponse{
 				Id:             comments[1].Id,
@@ -596,7 +600,7 @@ func TestPostsRepo_GetCommentById(t *testing.T) {
 		},
 		{
 			"GetCommentById_Success_1",
-			fields{db: testDB},
+			fields{client: testClient, database: database},
 			args{commentId: comments[2].Id},
 			Blogs.CommentResponse{
 				Id:             comments[2].Id,
@@ -611,7 +615,8 @@ func TestPostsRepo_GetCommentById(t *testing.T) {
 	for _, tt := range tests {
 		t.Run(tt.name, func(t *testing.T) {
 			p := &PostsRepo{
-				db: tt.fields.db,
+				client:   tt.fields.client,
+				database: tt.fields.database,
 			}
 			got, err := p.GetCommentById(tt.args.commentId)
 			if (err != nil) != tt.wantErr {
@@ -628,7 +633,8 @@ func TestPostsRepo_GetCommentById(t *testing.T) {
 
 func TestPostsRepo_UpdateComment(t *testing.T) {
 	type fields struct {
-		db *mongo.Client
+		client   *mongo.Client
+		database string
 	}
 	type args struct {
 		commentId primitive.ObjectID
@@ -642,7 +648,7 @@ func TestPostsRepo_UpdateComment(t *testing.T) {
 	}{
 		{
 			"UpdateComment_Success_1",
-			fields{db: testDB},
+			fields{client: testClient, database: database},
 			args{
 				commentId: comments[0].Id,
 				input: Blogs.UpdateCommentRequest{
@@ -653,7 +659,7 @@ func TestPostsRepo_UpdateComment(t *testing.T) {
 		},
 		{
 			"UpdateComment_Success_2",
-			fields{db: testDB},
+			fields{client: testClient, database: database},
 			args{
 				commentId: comments[1].Id,
 				input: Blogs.UpdateCommentRequest{
@@ -664,7 +670,7 @@ func TestPostsRepo_UpdateComment(t *testing.T) {
 		},
 		{
 			"UpdateComment_Success_3",
-			fields{db: testDB},
+			fields{client: testClient, database: database},
 			args{
 				commentId: comments[2].Id,
 				input: Blogs.UpdateCommentRequest{
@@ -675,7 +681,7 @@ func TestPostsRepo_UpdateComment(t *testing.T) {
 		},
 		{
 			"UpdateComment_Fail_1",
-			fields{db: testDB},
+			fields{client: testClient, database: database},
 			args{
 				commentId: primitive.NewObjectID(),
 				input: Blogs.UpdateCommentRequest{
@@ -688,7 +694,8 @@ func TestPostsRepo_UpdateComment(t *testing.T) {
 	for _, tt := range tests {
 		t.Run(tt.name, func(t *testing.T) {
 			p := &PostsRepo{
-				db: tt.fields.db,
+				client:   tt.fields.client,
+				database: tt.fields.database,
 			}
 			if err := p.UpdateComment(tt.args.commentId, tt.args.input); (err != nil) != tt.wantErr {
 				t.Errorf("UpdateComment() error = %v, wantErr %v", err, tt.wantErr)
@@ -699,7 +706,8 @@ func TestPostsRepo_UpdateComment(t *testing.T) {
 
 func TestPostsRepo_DeleteComment(t *testing.T) {
 	type fields struct {
-		db *mongo.Client
+		client   *mongo.Client
+		database string
 	}
 	type args struct {
 		commentId primitive.ObjectID
@@ -712,13 +720,13 @@ func TestPostsRepo_DeleteComment(t *testing.T) {
 	}{
 		{
 			"DeleteComment_Success_1",
-			fields{db: testDB},
+			fields{client: testClient, database: database},
 			args{commentId: comments[2].Id},
 			false,
 		},
 		{
 			"DeleteComment_Fail_1",
-			fields{db: testDB},
+			fields{client: testClient, database: database},
 			args{commentId: comments[2].Id},
 			true,
 		},
@@ -726,7 +734,8 @@ func TestPostsRepo_DeleteComment(t *testing.T) {
 	for _, tt := range tests {
 		t.Run(tt.name, func(t *testing.T) {
 			p := &PostsRepo{
-				db: tt.fields.db,
+				client:   tt.fields.client,
+				database: tt.fields.database,
 			}
 			if err := p.DeleteComment(tt.args.commentId); (err != nil) != tt.wantErr {
 				t.Errorf("DeleteComment() error = %v, wantErr %v", err, tt.wantErr)
@@ -737,7 +746,8 @@ func TestPostsRepo_DeleteComment(t *testing.T) {
 
 func TestPostsRepo_AddLike(t *testing.T) {
 	type fields struct {
-		db *mongo.Client
+		client   *mongo.Client
+		database string
 	}
 	type args struct {
 		postId    primitive.ObjectID
@@ -751,7 +761,7 @@ func TestPostsRepo_AddLike(t *testing.T) {
 	}{
 		{
 			"AddLike_Success_1",
-			fields{db: testDB},
+			fields{client: testClient, database: database},
 			args{
 				postId:    postIdList[0],
 				likedById: userIdList[3],
@@ -760,7 +770,7 @@ func TestPostsRepo_AddLike(t *testing.T) {
 		},
 		{
 			"AddLike_AlreadyLiked_Fail_1",
-			fields{db: testDB},
+			fields{client: testClient, database: database},
 			args{
 				postId:    postIdList[0],
 				likedById: userIdList[3],
@@ -769,7 +779,7 @@ func TestPostsRepo_AddLike(t *testing.T) {
 		},
 		{
 			"AddLike_InvalidInput_Fail_1",
-			fields{db: testDB},
+			fields{client: testClient, database: database},
 			args{
 				postId:    primitive.NewObjectID(),
 				likedById: userIdList[3],
@@ -780,7 +790,8 @@ func TestPostsRepo_AddLike(t *testing.T) {
 	for _, tt := range tests {
 		t.Run(tt.name, func(t *testing.T) {
 			p := &PostsRepo{
-				db: tt.fields.db,
+				client:   tt.fields.client,
+				database: tt.fields.database,
 			}
 			if err := p.AddLike(tt.args.postId, tt.args.likedById); (err != nil) != tt.wantErr {
 				t.Errorf("AddLike() error = %v, wantErr %v", err, tt.wantErr)
@@ -791,7 +802,8 @@ func TestPostsRepo_AddLike(t *testing.T) {
 
 func TestPostsRepo_UnlikePost(t *testing.T) {
 	type fields struct {
-		db *mongo.Client
+		client   *mongo.Client
+		database string
 	}
 	type args struct {
 		postId    primitive.ObjectID
@@ -805,7 +817,7 @@ func TestPostsRepo_UnlikePost(t *testing.T) {
 	}{
 		{
 			"UnLike_Success_1",
-			fields{db: testDB},
+			fields{client: testClient, database: database},
 			args{
 				postId:    postIdList[0],
 				likedById: userIdList[3],
@@ -814,7 +826,7 @@ func TestPostsRepo_UnlikePost(t *testing.T) {
 		},
 		{
 			"UnLike_AlreadyUnliked_Fail_1",
-			fields{db: testDB},
+			fields{client: testClient, database: database},
 			args{
 				postId:    postIdList[0],
 				likedById: userIdList[3],
@@ -823,7 +835,7 @@ func TestPostsRepo_UnlikePost(t *testing.T) {
 		},
 		{
 			"UnLike_InvalidInput_Fail_1",
-			fields{db: testDB},
+			fields{client: testClient, database: database},
 			args{
 				postId:    primitive.NewObjectID(),
 				likedById: userIdList[3],
@@ -834,7 +846,8 @@ func TestPostsRepo_UnlikePost(t *testing.T) {
 	for _, tt := range tests {
 		t.Run(tt.name, func(t *testing.T) {
 			p := &PostsRepo{
-				db: tt.fields.db,
+				client:   tt.fields.client,
+				database: tt.fields.database,
 			}
 			if err := p.UnlikePost(tt.args.postId, tt.args.likedById); (err != nil) != tt.wantErr {
 				t.Errorf("UnlikePost() error = %v, wantErr %v", err, tt.wantErr)
@@ -844,11 +857,11 @@ func TestPostsRepo_UnlikePost(t *testing.T) {
 }
 
 func TestCloseDB(t *testing.T) {
-	err := testDB.Database(viper.GetString("MONGO.DATABASE")).Drop(context.TODO())
+	err := testClient.Database(database).Drop(context.TODO())
 	if err != nil {
 		log.Fatal(err)
 	}
-	if err = testDB.Disconnect(context.TODO()); err != nil {
+	if err = testClient.Disconnect(context.TODO()); err != nil {
 		log.Fatalf("Error occured on db connection close: %s", err.Error())
 	}
 }

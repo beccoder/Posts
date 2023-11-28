@@ -4,7 +4,6 @@ import (
 	"Blogs"
 	"context"
 	"errors"
-	"github.com/spf13/viper"
 	"go.mongodb.org/mongo-driver/bson"
 	"go.mongodb.org/mongo-driver/bson/primitive"
 	"go.mongodb.org/mongo-driver/mongo"
@@ -12,16 +11,17 @@ import (
 )
 
 type PostsRepo struct {
-	db *mongo.Client
+	client   *mongo.Client
+	database string
 }
 
-func NewPostsRepo(db *mongo.Client) *PostsRepo {
-	return &PostsRepo{db: db}
+func NewPostsRepo(client *mongo.Client, database string) *PostsRepo {
+	return &PostsRepo{client: client, database: database}
 }
 
 func (p *PostsRepo) CreatePosts(post Blogs.PostModel) (primitive.ObjectID, error) {
 	post.CreatedAt = time.Now()
-	collPosts := p.db.Database(viper.GetString("MONGO.DATABASE")).Collection("posts")
+	collPosts := p.client.Database(p.database).Collection("posts")
 
 	result, err := collPosts.InsertOne(context.TODO(), post)
 	if err != nil {
@@ -32,7 +32,7 @@ func (p *PostsRepo) CreatePosts(post Blogs.PostModel) (primitive.ObjectID, error
 }
 
 func (p *PostsRepo) GetMyAllPosts(userId primitive.ObjectID) ([]Blogs.PostResponse, error) {
-	collPosts := p.db.Database(viper.GetString("MONGO.DATABASE")).Collection("posts")
+	collPosts := p.client.Database(p.database).Collection("posts")
 	result, err := collPosts.Find(context.TODO(), bson.M{"authors_id": userId})
 
 	var posts []Blogs.PostResponse
@@ -43,7 +43,7 @@ func (p *PostsRepo) GetMyAllPosts(userId primitive.ObjectID) ([]Blogs.PostRespon
 }
 
 func (p *PostsRepo) GetAllPosts() ([]Blogs.PostResponse, error) {
-	collPosts := p.db.Database(viper.GetString("MONGO.DATABASE")).Collection("posts")
+	collPosts := p.client.Database(p.database).Collection("posts")
 	result, err := collPosts.Find(context.TODO(), bson.M{})
 
 	var posts []Blogs.PostResponse
@@ -55,7 +55,7 @@ func (p *PostsRepo) GetAllPosts() ([]Blogs.PostResponse, error) {
 
 func (p *PostsRepo) GetPostById(postId primitive.ObjectID) (Blogs.PostResponse, error) {
 	var post Blogs.PostResponse
-	collPosts := p.db.Database(viper.GetString("MONGO.DATABASE")).Collection("posts")
+	collPosts := p.client.Database(p.database).Collection("posts")
 	err := collPosts.FindOne(context.TODO(), bson.D{{"_id", postId}}).Decode(&post)
 
 	if err != nil {
@@ -83,14 +83,14 @@ func (p *PostsRepo) UpdatePost(postId primitive.ObjectID, input Blogs.UpdatePost
 
 	updatedTime := time.Now()
 	update = append(update, bson.E{"$set", bson.D{{"updated_at", &updatedTime}}})
-	collPosts := p.db.Database(viper.GetString("MONGO.DATABASE")).Collection("posts")
+	collPosts := p.client.Database(p.database).Collection("posts")
 
 	_, err := collPosts.UpdateOne(context.TODO(), bson.D{{"_id", postId}}, update)
 	return err
 }
 
 func (p *PostsRepo) DeletePost(postId primitive.ObjectID) error {
-	collPosts := p.db.Database(viper.GetString("MONGO.DATABASE")).Collection("posts")
+	collPosts := p.client.Database(p.database).Collection("posts")
 	result, err := collPosts.DeleteOne(context.TODO(), bson.D{{"_id", postId}})
 
 	if err != nil {
@@ -104,7 +104,7 @@ func (p *PostsRepo) DeletePost(postId primitive.ObjectID) error {
 
 func (p *PostsRepo) CreateComment(input Blogs.CommentModel) (primitive.ObjectID, error) {
 	input.CreatedAt = time.Now()
-	collPosts := p.db.Database(viper.GetString("MONGO.DATABASE")).Collection("comments")
+	collPosts := p.client.Database(p.database).Collection("comments")
 
 	result, err := collPosts.InsertOne(context.TODO(), input)
 	if err != nil {
@@ -115,7 +115,7 @@ func (p *PostsRepo) CreateComment(input Blogs.CommentModel) (primitive.ObjectID,
 }
 
 func (p *PostsRepo) GetAllComments(postId primitive.ObjectID) ([]Blogs.CommentResponse, error) {
-	collPosts := p.db.Database(viper.GetString("MONGO.DATABASE")).Collection("comments")
+	collPosts := p.client.Database(p.database).Collection("comments")
 	result, err := collPosts.Find(context.TODO(), bson.M{"post_id": postId})
 
 	var comments []Blogs.CommentResponse
@@ -127,7 +127,7 @@ func (p *PostsRepo) GetAllComments(postId primitive.ObjectID) ([]Blogs.CommentRe
 
 func (p *PostsRepo) GetCommentById(commentId primitive.ObjectID) (Blogs.CommentResponse, error) {
 	var comment Blogs.CommentResponse
-	collPosts := p.db.Database(viper.GetString("MONGO.DATABASE")).Collection("comments")
+	collPosts := p.client.Database(p.database).Collection("comments")
 	err := collPosts.FindOne(context.TODO(), bson.D{{"_id", commentId}}).Decode(&comment)
 
 	if err != nil {
@@ -155,7 +155,7 @@ func (p *PostsRepo) UpdateComment(commentId primitive.ObjectID, input Blogs.Upda
 
 	updatedTime := time.Now()
 	update = append(update, bson.E{"$set", bson.D{{"updated_at", &updatedTime}}})
-	collComments := p.db.Database(viper.GetString("MONGO.DATABASE")).Collection("comments")
+	collComments := p.client.Database(p.database).Collection("comments")
 
 	res, err := collComments.UpdateOne(context.TODO(), bson.D{{"_id", commentId}}, update)
 	if res.MatchedCount == 0 {
@@ -170,7 +170,7 @@ func (p *PostsRepo) UpdateComment(commentId primitive.ObjectID, input Blogs.Upda
 }
 
 func (p *PostsRepo) DeleteComment(commentId primitive.ObjectID) error {
-	collComments := p.db.Database(viper.GetString("MONGO.DATABASE")).Collection("comments")
+	collComments := p.client.Database(p.database).Collection("comments")
 	result, err := collComments.DeleteOne(context.TODO(), bson.D{{"_id", commentId}})
 
 	if err != nil {
@@ -202,7 +202,7 @@ func (p *PostsRepo) AddLike(postId primitive.ObjectID, likedById primitive.Objec
 		LikedById: likedById,
 		CreatedAt: time.Now(),
 	}}}}}
-	collPosts := p.db.Database(viper.GetString("MONGO.DATABASE")).Collection("posts")
+	collPosts := p.client.Database(p.database).Collection("posts")
 
 	result, err := collPosts.UpdateOne(context.TODO(), filter, update)
 	if err != nil {
@@ -235,7 +235,7 @@ func (p *PostsRepo) UnlikePost(postId primitive.ObjectID, likedById primitive.Ob
 	filter := bson.D{{"_id", postId}}
 	update := bson.D{{"$pull", bson.D{{"likes", bson.D{{"liked_by_id", likedById}}}}}}
 
-	collPosts := p.db.Database(viper.GetString("MONGO.DATABASE")).Collection("posts")
+	collPosts := p.client.Database(p.database).Collection("posts")
 
 	res, err := collPosts.UpdateOne(context.TODO(), filter, update)
 	if res.MatchedCount == 0 {

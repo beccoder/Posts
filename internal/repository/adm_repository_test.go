@@ -10,7 +10,8 @@ import (
 
 func TestAdmRepo_CreateUser(t *testing.T) {
 	type fields struct {
-		db *mongo.Client
+		client   *mongo.Client
+		database string
 	}
 	type args struct {
 		input Blogs.UserModel
@@ -25,7 +26,7 @@ func TestAdmRepo_CreateUser(t *testing.T) {
 	}{
 		{
 			"CreateUserTestAdminSuccess1",
-			fields{db: testDB},
+			fields{client: testClient, database: database},
 			args{input: Blogs.UserModel{
 				Id:        userIdList[0],
 				Role:      "admin",
@@ -41,7 +42,7 @@ func TestAdmRepo_CreateUser(t *testing.T) {
 		},
 		{
 			"CreateUserTestAdminFailDuplicateUsername",
-			fields{db: testDB},
+			fields{client: testClient, database: database},
 			args{input: Blogs.UserModel{
 				Id:        userIdList[1],
 				Role:      "admin",
@@ -57,7 +58,7 @@ func TestAdmRepo_CreateUser(t *testing.T) {
 		},
 		{
 			"CreateUserTestAdminSuccess2",
-			fields{db: testDB},
+			fields{client: testClient, database: database},
 			args{input: Blogs.UserModel{
 				Id:        userIdList[2],
 				Role:      "admin",
@@ -73,7 +74,7 @@ func TestAdmRepo_CreateUser(t *testing.T) {
 		},
 		{
 			"CreateUserTestUserSuccess3",
-			fields{db: testDB},
+			fields{client: testClient, database: database},
 			args{input: Blogs.UserModel{
 				Id:        userIdList[3],
 				Role:      "user",
@@ -89,7 +90,7 @@ func TestAdmRepo_CreateUser(t *testing.T) {
 		},
 		{
 			"CreateUserTestAuthorSuccess4",
-			fields{db: testDB},
+			fields{client: testClient, database: database},
 			args{input: Blogs.UserModel{
 				Id:        userIdList[4],
 				Role:      "author",
@@ -107,7 +108,8 @@ func TestAdmRepo_CreateUser(t *testing.T) {
 	for _, tt := range tests {
 		t.Run(tt.name, func(t *testing.T) {
 			r := &AdmRepo{
-				db: tt.fields.db,
+				client:   tt.fields.client,
+				database: tt.fields.database,
 			}
 			got, err := r.CreateUser(tt.args.input)
 			if (err != nil) != tt.wantErr {
@@ -123,18 +125,18 @@ func TestAdmRepo_CreateUser(t *testing.T) {
 
 func TestAdmRepo_GetAllUsers(t *testing.T) {
 	type fields struct {
-		db *mongo.Client
+		client   *mongo.Client
+		database string
 	}
 	tests := []struct {
-		name   string
-		fields fields
-		//want    []Blogs.UserResponse
+		name    string
+		fields  fields
 		want    int
 		wantErr bool
 	}{
 		{
 			"GetAllUsersSuccess",
-			fields{db: testDB},
+			fields{client: testClient, database: database},
 			4,
 			false,
 		},
@@ -142,7 +144,8 @@ func TestAdmRepo_GetAllUsers(t *testing.T) {
 	for _, tt := range tests {
 		t.Run(tt.name, func(t *testing.T) {
 			r := &AdmRepo{
-				db: tt.fields.db,
+				client:   tt.fields.client,
+				database: tt.fields.database,
 			}
 			response, err := r.GetAllUsers()
 			if (err != nil) != tt.wantErr {
@@ -158,7 +161,8 @@ func TestAdmRepo_GetAllUsers(t *testing.T) {
 
 func TestAdmRepo_GetUserById(t *testing.T) {
 	type fields struct {
-		db *mongo.Client
+		client   *mongo.Client
+		database string
 	}
 	type args struct {
 		userId primitive.ObjectID
@@ -172,7 +176,7 @@ func TestAdmRepo_GetUserById(t *testing.T) {
 	}{
 		{
 			"GetUserById_1",
-			fields{db: testDB},
+			fields{client: testClient, database: database},
 			args{userId: userIdList[0]},
 			Blogs.UserResponse{
 				Id:        userIdList[0],
@@ -187,7 +191,7 @@ func TestAdmRepo_GetUserById(t *testing.T) {
 		},
 		{
 			"GetUserById_2",
-			fields{db: testDB},
+			fields{client: testClient, database: database},
 			args{userId: userIdList[2]},
 			Blogs.UserResponse{
 				Id:        userIdList[2],
@@ -204,7 +208,8 @@ func TestAdmRepo_GetUserById(t *testing.T) {
 	for _, tt := range tests {
 		t.Run(tt.name, func(t *testing.T) {
 			r := &AdmRepo{
-				db: tt.fields.db,
+				client:   tt.fields.client,
+				database: tt.fields.database,
 			}
 			got, err := r.GetUserById(tt.args.userId)
 			if (err != nil) != tt.wantErr {
@@ -222,7 +227,8 @@ func TestAdmRepo_GetUserById(t *testing.T) {
 
 func TestAdmRepo_UpdateUser(t *testing.T) {
 	type fields struct {
-		db *mongo.Client
+		client   *mongo.Client
+		database string
 	}
 	type args struct {
 		userId primitive.ObjectID
@@ -237,7 +243,7 @@ func TestAdmRepo_UpdateUser(t *testing.T) {
 	}{
 		{
 			"UpdateUserSuccess_1",
-			fields{db: testDB},
+			fields{client: testClient, database: database},
 			args{
 				userId: userIdList[0],
 				input:  Blogs.UpdateUserRequest{FirstName: &UpdatedStr},
@@ -248,7 +254,8 @@ func TestAdmRepo_UpdateUser(t *testing.T) {
 	for _, tt := range tests {
 		t.Run(tt.name, func(t *testing.T) {
 			r := &AdmRepo{
-				db: tt.fields.db,
+				client:   tt.fields.client,
+				database: tt.fields.database,
 			}
 			if err := r.UpdateUser(tt.args.userId, tt.args.input); (err != nil) != tt.wantErr {
 				t.Errorf("UpdateUser() error = %v, wantErr %v", err, tt.wantErr)
@@ -259,7 +266,8 @@ func TestAdmRepo_UpdateUser(t *testing.T) {
 
 func TestAdmRepo_DeleteUser(t *testing.T) {
 	type fields struct {
-		db *mongo.Client
+		client   *mongo.Client
+		database string
 	}
 	type args struct {
 		userId primitive.ObjectID
@@ -272,13 +280,13 @@ func TestAdmRepo_DeleteUser(t *testing.T) {
 	}{
 		{
 			"DeleteUserSuccess_1",
-			fields{db: testDB},
+			fields{client: testClient, database: database},
 			args{userId: userIdList[2]},
 			false,
 		},
 		{
 			"DeleteUserFail_1",
-			fields{db: testDB},
+			fields{client: testClient, database: database},
 			args{userId: userIdList[2]},
 			true,
 		},
@@ -286,7 +294,8 @@ func TestAdmRepo_DeleteUser(t *testing.T) {
 	for _, tt := range tests {
 		t.Run(tt.name, func(t *testing.T) {
 			r := &AdmRepo{
-				db: tt.fields.db,
+				client:   tt.fields.client,
+				database: tt.fields.database,
 			}
 			if err := r.DeleteUser(tt.args.userId); (err != nil) != tt.wantErr {
 				t.Errorf("DeleteUser() error = %v, wantErr %v", err, tt.wantErr)
@@ -297,7 +306,8 @@ func TestAdmRepo_DeleteUser(t *testing.T) {
 
 func TestAdmRepo_GetUserById_2(t *testing.T) {
 	type fields struct {
-		db *mongo.Client
+		client   *mongo.Client
+		database string
 	}
 	type args struct {
 		userId primitive.ObjectID
@@ -311,7 +321,7 @@ func TestAdmRepo_GetUserById_2(t *testing.T) {
 	}{
 		{
 			"GetUserById_3",
-			fields{db: testDB},
+			fields{client: testClient, database: database},
 			args{userId: userIdList[0]},
 			Blogs.UserResponse{
 				Id:        userIdList[0],
@@ -326,7 +336,7 @@ func TestAdmRepo_GetUserById_2(t *testing.T) {
 		},
 		{
 			"GetUserByIdFail_4",
-			fields{db: testDB},
+			fields{client: testClient, database: database},
 			args{userId: userIdList[2]},
 			Blogs.UserResponse{},
 			true,
@@ -335,7 +345,8 @@ func TestAdmRepo_GetUserById_2(t *testing.T) {
 	for _, tt := range tests {
 		t.Run(tt.name, func(t *testing.T) {
 			r := &AdmRepo{
-				db: tt.fields.db,
+				client:   tt.fields.client,
+				database: tt.fields.database,
 			}
 			got, err := r.GetUserById(tt.args.userId)
 			if (err != nil) != tt.wantErr {

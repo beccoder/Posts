@@ -2,10 +2,8 @@ package repository
 
 import (
 	"Blogs"
-	"github.com/spf13/viper"
 	"go.mongodb.org/mongo-driver/bson/primitive"
 	"go.mongodb.org/mongo-driver/mongo"
-	"log"
 )
 
 var (
@@ -72,22 +70,20 @@ var (
 		"This is my second reply comment for first comment UPDATE",
 	}
 
-	testDB = StartTest()
+	testClient, database = StartTest()
 )
 
-func StartTest() *mongo.Client {
-	if err := Blogs.LoadEnvConfig(); err != nil {
-		log.Fatal(err)
-	}
+func StartTest() (*mongo.Client, string) {
+	cfg := Blogs.Load()
 
-	dbURI := viper.GetString("MONGO.PROTOCOL") + "://" + viper.GetString("MONGO.HOST") + ":" + viper.GetString("MONGO.PORT")
-	client, err := ConnectMongoDB(dbURI)
+	cfg.MakeMongoDBURL()
+	client, err := ConnectMongoDB(cfg.MONGODB.URI, cfg.MONGODB.Username, cfg.MONGODB.Password)
 	if err != nil {
 		panic(err)
 	}
-	err = InitSchemas(client)
+	err = InitSchemas(client, cfg.MONGODB.Database)
 	if err != nil {
 		panic(err)
 	}
-	return client
+	return client, cfg.MONGODB.Database
 }

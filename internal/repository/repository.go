@@ -44,10 +44,10 @@ type Repository struct {
 	Posts
 }
 
-func NewRepository(db *mongo.Client) *Repository {
+func NewRepository(client *mongo.Client, database string) *Repository {
 	return &Repository{
-		Administration: NewAdmRepo(db),
-		Authorization:  NewAuthRepo(db),
-		Posts:          NewPostsRepo(db),
+		Administration: NewAdmRepo(client, database),
+		Authorization:  NewAuthRepo(client, database),
+		Posts:          NewPostsRepo(client, database),
 	}
 }
