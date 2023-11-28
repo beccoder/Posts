@@ -103,6 +103,15 @@ definitions:
     - password
     - username
     type: object
+  http.ErrorResponse:
+    properties:
+      description:
+        type: string
+      message:
+        type: string
+      status:
+        type: string
+    type: object
   http.Response:
     properties:
       data: {}
@@ -111,7 +120,7 @@ definitions:
       status:
         type: string
     type: object
-host: localhost:8086
+host: localhost:8080
 info:
   contact: {}
   description: Blogs Server in Go using Gin framework
@@ -134,19 +143,19 @@ paths:
         "400":
           description: Bad Request
           schema:
-            $ref: '#/definitions/http.Response'
+            $ref: '#/definitions/http.ErrorResponse'
         "404":
           description: Not Found
           schema:
-            $ref: '#/definitions/http.Response'
+            $ref: '#/definitions/http.ErrorResponse'
         "500":
           description: Internal Server Error
           schema:
-            $ref: '#/definitions/http.Response'
+            $ref: '#/definitions/http.ErrorResponse'
         default:
           description: ""
           schema:
-            $ref: '#/definitions/http.Response'
+            $ref: '#/definitions/http.ErrorResponse'
       security:
       - ApiKeyAuth: []
       summary: Get All Users
@@ -174,19 +183,19 @@ paths:
         "400":
           description: Bad Request
           schema:
-            $ref: '#/definitions/http.Response'
+            $ref: '#/definitions/http.ErrorResponse'
         "404":
           description: Not Found
           schema:
-            $ref: '#/definitions/http.Response'
+            $ref: '#/definitions/http.ErrorResponse'
         "500":
           description: Internal Server Error
           schema:
-            $ref: '#/definitions/http.Response'
+            $ref: '#/definitions/http.ErrorResponse'
         default:
           description: ""
           schema:
-            $ref: '#/definitions/http.Response'
+            $ref: '#/definitions/http.ErrorResponse'
       security:
       - ApiKeyAuth: []
       summary: Create User
@@ -214,19 +223,19 @@ paths:
         "400":
           description: Bad Request
           schema:
-            $ref: '#/definitions/http.Response'
+            $ref: '#/definitions/http.ErrorResponse'
         "404":
           description: Not Found
           schema:
-            $ref: '#/definitions/http.Response'
+            $ref: '#/definitions/http.ErrorResponse'
         "500":
           description: Internal Server Error
           schema:
-            $ref: '#/definitions/http.Response'
+            $ref: '#/definitions/http.ErrorResponse'
         default:
           description: ""
           schema:
-            $ref: '#/definitions/http.Response'
+            $ref: '#/definitions/http.ErrorResponse'
       security:
       - ApiKeyAuth: []
       summary: Delete an existing User
@@ -253,19 +262,19 @@ paths:
         "400":
           description: Bad Request
           schema:
-            $ref: '#/definitions/http.Response'
+            $ref: '#/definitions/http.ErrorResponse'
         "404":
           description: Not Found
           schema:
-            $ref: '#/definitions/http.Response'
+            $ref: '#/definitions/http.ErrorResponse'
         "500":
           description: Internal Server Error
           schema:
-            $ref: '#/definitions/http.Response'
+            $ref: '#/definitions/http.ErrorResponse'
         default:
           description: ""
           schema:
-            $ref: '#/definitions/http.Response'
+            $ref: '#/definitions/http.ErrorResponse'
       security:
       - ApiKeyAuth: []
       summary: Get a User by ID
@@ -298,19 +307,19 @@ paths:
         "400":
           description: Bad Request
           schema:
-            $ref: '#/definitions/http.Response'
+            $ref: '#/definitions/http.ErrorResponse'
         "404":
           description: Not Found
           schema:
-            $ref: '#/definitions/http.Response'
+            $ref: '#/definitions/http.ErrorResponse'
         "500":
           description: Internal Server Error
           schema:
-            $ref: '#/definitions/http.Response'
+            $ref: '#/definitions/http.ErrorResponse'
         default:
           description: ""
           schema:
-            $ref: '#/definitions/http.Response'
+            $ref: '#/definitions/http.ErrorResponse'
       security:
       - ApiKeyAuth: []
       summary: Update an existing User data
@@ -339,22 +348,22 @@ paths:
         "400":
           description: Bad Request
           schema:
-            $ref: '#/definitions/http.Response'
+            $ref: '#/definitions/http.ErrorResponse'
         "404":
           description: Not Found
           schema:
-            $ref: '#/definitions/http.Response'
+            $ref: '#/definitions/http.ErrorResponse'
         "500":
           description: Internal Server Error
           schema:
-            $ref: '#/definitions/http.Response'
+            $ref: '#/definitions/http.ErrorResponse'
         default:
           description: ""
           schema:
-            $ref: '#/definitions/http.Response'
+            $ref: '#/definitions/http.ErrorResponse'
       summary: Sign In Admin
       tags:
-      - Administration
+      - Authorization
   /auth/author/sign-in:
     post:
       consumes:
@@ -378,19 +387,19 @@ paths:
         "400":
           description: Bad Request
           schema:
-            $ref: '#/definitions/http.Response'
+            $ref: '#/definitions/http.ErrorResponse'
         "404":
           description: Not Found
           schema:
-            $ref: '#/definitions/http.Response'
+            $ref: '#/definitions/http.ErrorResponse'
         "500":
           description: Internal Server Error
           schema:
-            $ref: '#/definitions/http.Response'
+            $ref: '#/definitions/http.ErrorResponse'
         default:
           description: ""
           schema:
-            $ref: '#/definitions/http.Response'
+            $ref: '#/definitions/http.ErrorResponse'
       summary: Sign In Author
       tags:
       - Authorization
@@ -417,19 +426,19 @@ paths:
         "400":
           description: Bad Request
           schema:
-            $ref: '#/definitions/http.Response'
+            $ref: '#/definitions/http.ErrorResponse'
         "404":
           description: Not Found
           schema:
-            $ref: '#/definitions/http.Response'
+            $ref: '#/definitions/http.ErrorResponse'
         "500":
           description: Internal Server Error
           schema:
-            $ref: '#/definitions/http.Response'
+            $ref: '#/definitions/http.ErrorResponse'
         default:
           description: ""
           schema:
-            $ref: '#/definitions/http.Response'
+            $ref: '#/definitions/http.ErrorResponse'
       summary: Sign Up Author
       tags:
       - Authorization
@@ -456,19 +465,19 @@ paths:
         "400":
           description: Bad Request
           schema:
-            $ref: '#/definitions/http.Response'
+            $ref: '#/definitions/http.ErrorResponse'
         "404":
           description: Not Found
           schema:
-            $ref: '#/definitions/http.Response'
+            $ref: '#/definitions/http.ErrorResponse'
         "500":
           description: Internal Server Error
           schema:
-            $ref: '#/definitions/http.Response'
+            $ref: '#/definitions/http.ErrorResponse'
         default:
           description: ""
           schema:
-            $ref: '#/definitions/http.Response'
+            $ref: '#/definitions/http.ErrorResponse'
       summary: Sign In User
       tags:
       - Authorization
@@ -495,19 +504,19 @@ paths:
         "400":
           description: Bad Request
           schema:
-            $ref: '#/definitions/http.Response'
+            $ref: '#/definitions/http.ErrorResponse'
         "404":
           description: Not Found
           schema:
-            $ref: '#/definitions/http.Response'
+            $ref: '#/definitions/http.ErrorResponse'
         "500":
           description: Internal Server Error
           schema:
-            $ref: '#/definitions/http.Response'
+            $ref: '#/definitions/http.ErrorResponse'
         default:
           description: ""
           schema:
-            $ref: '#/definitions/http.Response'
+            $ref: '#/definitions/http.ErrorResponse'
       summary: Sign Up User
       tags:
       - Authorization
@@ -527,19 +536,19 @@ paths:
         "400":
           description: Bad Request
           schema:
-            $ref: '#/definitions/http.Response'
+            $ref: '#/definitions/http.ErrorResponse'
         "404":
           description: Not Found
           schema:
-            $ref: '#/definitions/http.Response'
+            $ref: '#/definitions/http.ErrorResponse'
         "500":
           description: Internal Server Error
           schema:
-            $ref: '#/definitions/http.Response'
+            $ref: '#/definitions/http.ErrorResponse'
         default:
           description: ""
           schema:
-            $ref: '#/definitions/http.Response'
+            $ref: '#/definitions/http.ErrorResponse'
       security:
       - ApiKeyAuth: []
       summary: Get All Posts
@@ -567,19 +576,19 @@ paths:
         "400":
           description: Bad Request
           schema:
-            $ref: '#/definitions/http.Response'
+            $ref: '#/definitions/http.ErrorResponse'
         "404":
           description: Not Found
           schema:
-            $ref: '#/definitions/http.Response'
+            $ref: '#/definitions/http.ErrorResponse'
         "500":
           description: Internal Server Error
           schema:
-            $ref: '#/definitions/http.Response'
+            $ref: '#/definitions/http.ErrorResponse'
         default:
           description: ""
           schema:
-            $ref: '#/definitions/http.Response'
+            $ref: '#/definitions/http.ErrorResponse'
       security:
       - ApiKeyAuth: []
       summary: Create a new Post
@@ -607,19 +616,19 @@ paths:
         "400":
           description: Bad Request
           schema:
-            $ref: '#/definitions/http.Response'
+            $ref: '#/definitions/http.ErrorResponse'
         "404":
           description: Not Found
           schema:
-            $ref: '#/definitions/http.Response'
+            $ref: '#/definitions/http.ErrorResponse'
         "500":
           description: Internal Server Error
           schema:
-            $ref: '#/definitions/http.Response'
+            $ref: '#/definitions/http.ErrorResponse'
         default:
           description: ""
           schema:
-            $ref: '#/definitions/http.Response'
+            $ref: '#/definitions/http.ErrorResponse'
       security:
       - ApiKeyAuth: []
       summary: Delete an existing Post
@@ -646,19 +655,19 @@ paths:
         "400":
           description: Bad Request
           schema:
-            $ref: '#/definitions/http.Response'
+            $ref: '#/definitions/http.ErrorResponse'
         "404":
           description: Not Found
           schema:
-            $ref: '#/definitions/http.Response'
+            $ref: '#/definitions/http.ErrorResponse'
         "500":
           description: Internal Server Error
           schema:
-            $ref: '#/definitions/http.Response'
+            $ref: '#/definitions/http.ErrorResponse'
         default:
           description: ""
           schema:
-            $ref: '#/definitions/http.Response'
+            $ref: '#/definitions/http.ErrorResponse'
       security:
       - ApiKeyAuth: []
       summary: Get a Post by ID
@@ -691,19 +700,19 @@ paths:
         "400":
           description: Bad Request
           schema:
-            $ref: '#/definitions/http.Response'
+            $ref: '#/definitions/http.ErrorResponse'
         "404":
           description: Not Found
           schema:
-            $ref: '#/definitions/http.Response'
+            $ref: '#/definitions/http.ErrorResponse'
         "500":
           description: Internal Server Error
           schema:
-            $ref: '#/definitions/http.Response'
+            $ref: '#/definitions/http.ErrorResponse'
         default:
           description: ""
           schema:
-            $ref: '#/definitions/http.Response'
+            $ref: '#/definitions/http.ErrorResponse'
       security:
       - ApiKeyAuth: []
       summary: Update an existing Post data
@@ -731,24 +740,24 @@ paths:
         "400":
           description: Bad Request
           schema:
-            $ref: '#/definitions/http.Response'
+            $ref: '#/definitions/http.ErrorResponse'
         "404":
           description: Not Found
           schema:
-            $ref: '#/definitions/http.Response'
+            $ref: '#/definitions/http.ErrorResponse'
         "500":
           description: Internal Server Error
           schema:
-            $ref: '#/definitions/http.Response'
+            $ref: '#/definitions/http.ErrorResponse'
         default:
           description: ""
           schema:
-            $ref: '#/definitions/http.Response'
+            $ref: '#/definitions/http.ErrorResponse'
       security:
       - ApiKeyAuth: []
       summary: Get All Comments
       tags:
-      - Posts
+      - Posts-Comments
     post:
       consumes:
       - application/json
@@ -776,24 +785,24 @@ paths:
         "400":
           description: Bad Request
           schema:
-            $ref: '#/definitions/http.Response'
+            $ref: '#/definitions/http.ErrorResponse'
         "404":
           description: Not Found
           schema:
-            $ref: '#/definitions/http.Response'
+            $ref: '#/definitions/http.ErrorResponse'
         "500":
           description: Internal Server Error
           schema:
-            $ref: '#/definitions/http.Response'
+            $ref: '#/definitions/http.ErrorResponse'
         default:
           description: ""
           schema:
-            $ref: '#/definitions/http.Response'
+            $ref: '#/definitions/http.ErrorResponse'
       security:
       - ApiKeyAuth: []
       summary: Create a new Comment
       tags:
-      - Posts
+      - Posts-Comments
   /posts/{post_id}/like:
     post:
       consumes:
@@ -816,24 +825,24 @@ paths:
         "400":
           description: Bad Request
           schema:
-            $ref: '#/definitions/http.Response'
+            $ref: '#/definitions/http.ErrorResponse'
         "404":
           description: Not Found
           schema:
-            $ref: '#/definitions/http.Response'
+            $ref: '#/definitions/http.ErrorResponse'
         "500":
           description: Internal Server Error
           schema:
-            $ref: '#/definitions/http.Response'
+            $ref: '#/definitions/http.ErrorResponse'
         default:
           description: ""
           schema:
-            $ref: '#/definitions/http.Response'
+            $ref: '#/definitions/http.ErrorResponse'
       security:
       - ApiKeyAuth: []
       summary: Like the post
       tags:
-      - Posts
+      - Posts-Like
   /posts/{post_id}/unlike:
     post:
       consumes:
@@ -856,24 +865,24 @@ paths:
         "400":
           description: Bad Request
           schema:
-            $ref: '#/definitions/http.Response'
+            $ref: '#/definitions/http.ErrorResponse'
         "404":
           description: Not Found
           schema:
-            $ref: '#/definitions/http.Response'
+            $ref: '#/definitions/http.ErrorResponse'
         "500":
           description: Internal Server Error
           schema:
-            $ref: '#/definitions/http.Response'
+            $ref: '#/definitions/http.ErrorResponse'
         default:
           description: ""
           schema:
-            $ref: '#/definitions/http.Response'
+            $ref: '#/definitions/http.ErrorResponse'
       security:
       - ApiKeyAuth: []
       summary: Unlike the post
       tags:
-      - Posts
+      - Posts-Like
   /posts/comments/{comment_id}:
     delete:
       consumes:
@@ -896,24 +905,24 @@ paths:
         "400":
           description: Bad Request
           schema:
-            $ref: '#/definitions/http.Response'
+            $ref: '#/definitions/http.ErrorResponse'
         "404":
           description: Not Found
           schema:
-            $ref: '#/definitions/http.Response'
+            $ref: '#/definitions/http.ErrorResponse'
         "500":
           description: Internal Server Error
           schema:
-            $ref: '#/definitions/http.Response'
+            $ref: '#/definitions/http.ErrorResponse'
         default:
           description: ""
           schema:
-            $ref: '#/definitions/http.Response'
+            $ref: '#/definitions/http.ErrorResponse'
       security:
       - ApiKeyAuth: []
       summary: Delete an existing Comment of the post
       tags:
-      - Posts
+      - Posts-Comments
     get:
       consumes:
       - application/json
@@ -935,24 +944,24 @@ paths:
         "400":
           description: Bad Request
           schema:
-            $ref: '#/definitions/http.Response'
+            $ref: '#/definitions/http.ErrorResponse'
         "404":
           description: Not Found
           schema:
-            $ref: '#/definitions/http.Response'
+            $ref: '#/definitions/http.ErrorResponse'
         "500":
           description: Internal Server Error
           schema:
-            $ref: '#/definitions/http.Response'
+            $ref: '#/definitions/http.ErrorResponse'
         default:
           description: ""
           schema:
-            $ref: '#/definitions/http.Response'
+            $ref: '#/definitions/http.ErrorResponse'
       security:
       - ApiKeyAuth: []
       summary: Get a Comment by ID
       tags:
-      - Posts
+      - Posts-Comments
     put:
       consumes:
       - application/json
@@ -980,24 +989,24 @@ paths:
         "400":
           description: Bad Request
           schema:
-            $ref: '#/definitions/http.Response'
+            $ref: '#/definitions/http.ErrorResponse'
         "404":
           description: Not Found
           schema:
-            $ref: '#/definitions/http.Response'
+            $ref: '#/definitions/http.ErrorResponse'
         "500":
           description: Internal Server Error
           schema:
-            $ref: '#/definitions/http.Response'
+            $ref: '#/definitions/http.ErrorResponse'
         default:
           description: ""
           schema:
-            $ref: '#/definitions/http.Response'
+            $ref: '#/definitions/http.ErrorResponse'
       security:
       - ApiKeyAuth: []
       summary: Update an existing Comment data
       tags:
-      - Posts
+      - Posts-Comments
   /posts/my:
     get:
       consumes:
@@ -1014,19 +1023,19 @@ paths:
         "400":
           description: Bad Request
           schema:
-            $ref: '#/definitions/http.Response'
+            $ref: '#/definitions/http.ErrorResponse'
         "404":
           description: Not Found
           schema:
-            $ref: '#/definitions/http.Response'
+            $ref: '#/definitions/http.ErrorResponse'
         "500":
           description: Internal Server Error
           schema:
-            $ref: '#/definitions/http.Response'
+            $ref: '#/definitions/http.ErrorResponse'
         default:
           description: ""
           schema:
-            $ref: '#/definitions/http.Response'
+            $ref: '#/definitions/http.ErrorResponse'
       security:
       - ApiKeyAuth: []
       summary: Get All My Posts

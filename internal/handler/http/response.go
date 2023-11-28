@@ -32,3 +32,17 @@ func HandleResponse(c *gin.Context, status Status, data interface{}) {
 		Data:        data,
 	})
 }
+
+type ErrorResponse struct {
+	Status      string `json:"status"`
+	Description string `json:"description"`
+	Message     string `json:"message"`
+}
+
+func HandleErrorResponse(c *gin.Context, status Status, message string) {
+	c.AbortWithStatusJSON(status.Code, ErrorResponse{
+		Status:      status.Status,
+		Description: status.Description,
+		Message:     message,
+	})
+}

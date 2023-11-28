@@ -6,9 +6,9 @@ PROJECT:
 MONGO:
   PROTOCOL: "mongodb"
   HOST: "127.0.0.1"
-  PORT: "27018"
+  PORT: "27017"
   DATABASE: "blogs_test"
 
 HTTP:
   HOST: "127.0.0.1"
-  PORT: "8086"
+  PORT: "8080"

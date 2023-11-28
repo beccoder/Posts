@@ -17,24 +17,24 @@ const (
 func (h *Handler) middlewareAdmin(c *gin.Context) {
 	header := c.GetHeader(authorizationHeader)
 	if header == "" {
-		http.HandleResponse(c, http.Unauthorized, "Empty auth header")
+		http.HandleErrorResponse(c, http.Unauthorized, "Empty auth header")
 		return
 	}
 
 	headerParts := strings.Split(header, " ")
 	if len(headerParts) != 2 {
-		http.HandleResponse(c, http.InvalidAuthHeader, "Invalid auth header")
+		http.HandleErrorResponse(c, http.InvalidAuthHeader, "Invalid auth header")
 		return
 	}
 
 	userId, role, err := h.services.Authorization.ParseToken(headerParts[1])
 	if err != nil {
-		http.HandleResponse(c, http.InvalidAuth, err.Error())
+		http.HandleErrorResponse(c, http.InvalidAuth, err.Error())
 		return
 	}
 
 	if role != "admin" {
-		http.HandleResponse(c, http.Forbidden, "Forbidden")
+		http.HandleErrorResponse(c, http.Forbidden, "Forbidden")
 		return
 
 	}
@@ -45,23 +45,23 @@ func (h *Handler) middlewareAdmin(c *gin.Context) {
 func (h *Handler) middlewareAuthor(c *gin.Context) {
 	header := c.GetHeader(authorizationHeader)
 	if header == "" {
-		http.HandleResponse(c, http.Unauthorized, "Empty auth header")
+		http.HandleErrorResponse(c, http.Unauthorized, "Empty auth header")
 		return
 	}
 
 	headerParts := strings.Split(header, " ")
 	if len(headerParts) != 2 {
-		http.HandleResponse(c, http.InvalidAuthHeader, "Invalid auth header")
+		http.HandleErrorResponse(c, http.InvalidAuthHeader, "Invalid auth header")
 		return
 	}
 
 	userId, role, err := h.services.Authorization.ParseToken(headerParts[1])
 	if err != nil {
-		http.HandleResponse(c, http.InvalidAuth, err.Error())
+		http.HandleErrorResponse(c, http.InvalidAuth, err.Error())
 		return
 	}
 	if role != "author" && role != "admin" {
-		http.HandleResponse(c, http.AccessDenied, "Access denied")
+		http.HandleErrorResponse(c, http.AccessDenied, "Access denied")
 		return
 
 	}
@@ -72,19 +72,19 @@ func (h *Handler) middlewareAuthor(c *gin.Context) {
 func (h *Handler) middleware(c *gin.Context) {
 	header := c.GetHeader(authorizationHeader)
 	if header == "" {
-		http.HandleResponse(c, http.Unauthorized, "Empty auth header")
+		http.HandleErrorResponse(c, http.Unauthorized, "Empty auth header")
 		return
 	}
 
 	headerParts := strings.Split(header, " ")
 	if len(headerParts) != 2 {
-		http.HandleResponse(c, http.InvalidAuthHeader, "Invalid auth header")
+		http.HandleErrorResponse(c, http.InvalidAuthHeader, "Invalid auth header")
 		return
 	}
 
 	userId, role, err := h.services.Authorization.ParseToken(headerParts[1])
 	if err != nil {
-		http.HandleResponse(c, http.InvalidAuth, err.Error())
+		http.HandleErrorResponse(c, http.InvalidAuth, err.Error())
 		return
 	}
 	c.Set(userCtxId, userId)
@@ -120,12 +120,12 @@ func getUserRole(c *gin.Context) (string, error) {
 func (h *Handler) checkOwnershipComment(c *gin.Context) {
 	commentId, err := primitive.ObjectIDFromHex(c.Param("comment_id"))
 	if err != nil {
-		http.HandleResponse(c, http.InvalidArgument, err.Error())
+		http.HandleErrorResponse(c, http.InvalidArgument, err.Error())
 		return
 	}
 	userId, err := h.getUserId(c)
 	if err != nil {
-		http.HandleResponse(c, http.InternalServerError, err.Error())
+		http.HandleErrorResponse(c, http.InternalServerError, err.Error())
 		return
 	}
 
@@ -133,19 +133,19 @@ func (h *Handler) checkOwnershipComment(c *gin.Context) {
 	comment, err := h.services.GetCommentById(commentId)
 	if err != nil {
 		if err.Error() == "no comments exist" {
-			http.HandleResponse(c, http.NotFound, err.Error())
+			http.HandleErrorResponse(c, http.NotFound, err.Error())
 			return
 		}
-		http.HandleResponse(c, http.InternalServerError, err.Error())
+		http.HandleErrorResponse(c, http.InternalServerError, err.Error())
 		return
 	}
 	role, err := getUserRole(c)
 	if err != nil {
-		http.HandleResponse(c, http.InvalidArgument, err.Error())
+		http.HandleErrorResponse(c, http.InvalidArgument, err.Error())
 		return
 	}
 	if userId.Hex() != comment.CommentedById.Hex() && role != "admin" {
-		http.HandleResponse(c, http.AccessDenied, "access denied")
+		http.HandleErrorResponse(c, http.AccessDenied, "access denied")
 		return
 	}
 }
@@ -153,13 +153,13 @@ func (h *Handler) checkOwnershipComment(c *gin.Context) {
 func (h *Handler) checkOwnershipPost(c *gin.Context) {
 	postId, err := primitive.ObjectIDFromHex(c.Param("post_id"))
 	if err != nil {
-		http.HandleResponse(c, http.InvalidArgument, err.Error())
+		http.HandleErrorResponse(c, http.InvalidArgument, err.Error())
 		return
 	}
 
 	userId, err := h.getUserId(c)
 	if err != nil {
-		http.HandleResponse(c, http.InvalidArgument, err.Error())
+		http.HandleErrorResponse(c, http.InvalidArgument, err.Error())
 		return
 	}
 
@@ -167,21 +167,21 @@ func (h *Handler) checkOwnershipPost(c *gin.Context) {
 	post, err := h.services.GetPostById(postId)
 	if err != nil {
 		if err.Error() == "no posts exist" {
-			http.HandleResponse(c, http.NotFound, err.Error())
+			http.HandleErrorResponse(c, http.NotFound, err.Error())
 			return
 		}
-		http.HandleResponse(c, http.InternalServerError, err.Error())
+		http.HandleErrorResponse(c, http.InternalServerError, err.Error())
 		return
 	}
 
 	role, err := getUserRole(c)
 	if err != nil {
-		http.HandleResponse(c, http.InvalidArgument, err.Error())
+		http.HandleErrorResponse(c, http.InvalidArgument, err.Error())
 		return
 	}
 
 	if userId.Hex() != post.AuthorsId.Hex() && role != "admin" {
-		http.HandleResponse(c, http.AccessDenied, "access denied")
+		http.HandleErrorResponse(c, http.AccessDenied, "access denied")
 		return
 	}
 }

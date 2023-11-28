@@ -37,6 +37,10 @@ prod_var:
 	sed -i '/^RUN_MODE=/d' .env
 	echo "RUN_MODE=prod" >> .env
 
+docker_var:
+	sed -i '/^RUN_MODE=/d' .env
+	echo "RUN_MODE=docker" >> .env
+
 swag_init:
 	swag init -g internal/app.go
 

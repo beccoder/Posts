@@ -4,6 +4,7 @@ import (
 	"Blogs"
 	"Blogs/internal/handler/http"
 	"github.com/gin-gonic/gin"
+	"strings"
 )
 
 // signUpAuthor godoc
@@ -15,36 +16,36 @@ import (
 // @Produce 		json
 // @Param 			input body Blogs.SignUpUserRequest true "account info"
 // @Success 		200 {object} http.Response ""
-// @Failure 		400,404 {object} http.Response
-// @Failure			500 {object} http.Response
-// @Failure 		default {object} http.Response
+// @Failure 		400,404 {object} http.ErrorResponse
+// @Failure			500 {object} http.ErrorResponse
+// @Failure 		default {object} http.ErrorResponse
 // @Router 			/auth/author/sign-up [post]
 func (h *Handler) signUpAuthor(c *gin.Context) {
 	var input Blogs.SignUpUserRequest
 	if err := c.BindJSON(&input); err != nil {
-		http.HandleResponse(c, http.BadRequest, err.Error())
+		http.HandleErrorResponse(c, http.BadRequest, err.Error())
 		return
 	}
 	signUpData := Blogs.UserModel{
 		Role:      "author",
 		FirstName: input.FirstName,
 		LastName:  input.LastName,
-		Username:  input.Username,
+		Username:  strings.ToLower(input.Username),
 		Password:  input.Password,
-		Email:     input.Email,
+		Email:     strings.ToLower(input.Email),
 		Bio:       input.Bio,
 	}
 	id, err := h.services.CreateUser(signUpData)
 	if err != nil {
 		if err.Error() == "already registered" {
-			http.HandleResponse(c, http.RequestConflict, err.Error())
+			http.HandleErrorResponse(c, http.RequestConflict, err.Error())
 			return
 		}
 		if err.Error() == "username exists" {
-			http.HandleResponse(c, http.RequestConflict, err.Error())
+			http.HandleErrorResponse(c, http.RequestConflict, err.Error())
 			return
 		}
-		http.HandleResponse(c, http.InternalServerError, err.Error())
+		http.HandleErrorResponse(c, http.InternalServerError, err.Error())
 		return
 	}
 
@@ -62,36 +63,36 @@ func (h *Handler) signUpAuthor(c *gin.Context) {
 // @Produce 		json
 // @Param 			input body Blogs.SignUpUserRequest true "account info"
 // @Success 		200 {object} http.Response ""
-// @Failure 		400,404 {object} http.Response
-// @Failure			500 {object} http.Response
-// @Failure 		default {object} http.Response
+// @Failure 		400,404 {object} http.ErrorResponse
+// @Failure			500 {object} http.ErrorResponse
+// @Failure 		default {object} http.ErrorResponse
 // @Router 			/auth/user/sign-up [post]
 func (h *Handler) signUpUser(c *gin.Context) {
 	var input Blogs.SignUpUserRequest
 	if err := c.BindJSON(&input); err != nil {
-		http.HandleResponse(c, http.BadRequest, err.Error())
+		http.HandleErrorResponse(c, http.BadRequest, err.Error())
 		return
 	}
 	signUpData := Blogs.UserModel{
 		Role:      "user",
 		FirstName: input.FirstName,
 		LastName:  input.LastName,
-		Username:  input.Username,
+		Username:  strings.ToLower(input.Username),
 		Password:  input.Password,
-		Email:     input.Email,
+		Email:     strings.ToLower(input.Email),
 		Bio:       input.Bio,
 	}
 	id, err := h.services.CreateUser(signUpData)
 	if err != nil {
 		if err.Error() == "already registered" {
-			http.HandleResponse(c, http.RequestConflict, err.Error())
+			http.HandleErrorResponse(c, http.RequestConflict, err.Error())
 			return
 		}
 		if err.Error() == "username exists" {
-			http.HandleResponse(c, http.RequestConflict, err.Error())
+			http.HandleErrorResponse(c, http.RequestConflict, err.Error())
 			return
 		}
-		http.HandleResponse(c, http.InternalServerError, err.Error())
+		http.HandleErrorResponse(c, http.InternalServerError, err.Error())
 		return
 	}
 
@@ -114,24 +115,24 @@ type signInInput struct {
 // @Produce 		json
 // @Param 			input body signInInput true "credentials"
 // @Success 		200 {object} http.Response
-// @Failure 		400,404 {object} http.Response
-// @Failure			500 {object} http.Response
-// @Failure 		default {object} http.Response
+// @Failure 		400,404 {object} http.ErrorResponse
+// @Failure			500 {object} http.ErrorResponse
+// @Failure 		default {object} http.ErrorResponse
 // @Router 			/auth/author/sign-in [post]
 func (h *Handler) signInAuthor(c *gin.Context) {
 	var input signInInput
 	if err := c.BindJSON(&input); err != nil {
-		http.HandleResponse(c, http.BadRequest, err.Error())
+		http.HandleErrorResponse(c, http.BadRequest, err.Error())
 		return
 	}
 
-	token, err := h.services.GenerateToken(input.Username, input.Password, "author")
+	token, err := h.services.GenerateToken(strings.ToLower(input.Username), input.Password, "author")
 	if err != nil {
 		if err.Error() == "Invalid role" {
-			http.HandleResponse(c, http.InvalidArgument, err.Error())
+			http.HandleErrorResponse(c, http.InvalidArgument, err.Error())
 			return
 		}
-		http.HandleResponse(c, http.InternalServerError, err.Error())
+		http.HandleErrorResponse(c, http.InternalServerError, err.Error())
 		return
 	}
 
@@ -150,24 +151,24 @@ func (h *Handler) signInAuthor(c *gin.Context) {
 // @Produce 		json
 // @Param 			input body signInInput true "credentials"
 // @Success 		200 {object} http.Response
-// @Failure 		400,404 {object} http.Response
-// @Failure			500 {object} http.Response
-// @Failure 		default {object} http.Response
+// @Failure 		400,404 {object} http.ErrorResponse
+// @Failure			500 {object} http.ErrorResponse
+// @Failure 		default {object} http.ErrorResponse
 // @Router 			/auth/user/sign-in [post]
 func (h *Handler) signInUser(c *gin.Context) {
 	var input signInInput
 	if err := c.BindJSON(&input); err != nil {
-		http.HandleResponse(c, http.BadRequest, err.Error())
+		http.HandleErrorResponse(c, http.BadRequest, err.Error())
 		return
 	}
 
-	token, err := h.services.GenerateToken(input.Username, input.Password, "user")
+	token, err := h.services.GenerateToken(strings.ToLower(input.Username), input.Password, "user")
 	if err != nil {
 		if err.Error() == "Invalid role" {
-			http.HandleResponse(c, http.InvalidArgument, err.Error())
+			http.HandleErrorResponse(c, http.InvalidArgument, err.Error())
 			return
 		}
-		http.HandleResponse(c, http.InternalServerError, err.Error())
+		http.HandleErrorResponse(c, http.InternalServerError, err.Error())
 		return
 	}
 
@@ -179,31 +180,31 @@ func (h *Handler) signInUser(c *gin.Context) {
 
 // signInAdmin godoc
 // @Summary			Sign In Admin
-// @Tags 			Administration
+// @Tags 			Authorization
 // @Description		Login to admin account
 // @ID 				login-admin-account
 // @Accept 			json
 // @Produce 		json
 // @Param 			input body signInInput true "credentials"
 // @Success 		200 {object} http.Response
-// @Failure 		400,404 {object} http.Response
-// @Failure			500 {object} http.Response
-// @Failure 		default {object} http.Response
+// @Failure 		400,404 {object} http.ErrorResponse
+// @Failure			500 {object} http.ErrorResponse
+// @Failure 		default {object} http.ErrorResponse
 // @Router 			/auth/admin/sign-in [post]
 func (h *Handler) signInAdmin(c *gin.Context) {
 	var input signInInput
 	if err := c.BindJSON(&input); err != nil {
-		http.HandleResponse(c, http.BadRequest, err.Error())
+		http.HandleErrorResponse(c, http.BadRequest, err.Error())
 		return
 	}
 
-	token, err := h.services.GenerateToken(input.Username, input.Password, "admin")
+	token, err := h.services.GenerateToken(strings.ToLower(input.Username), input.Password, "admin")
 	if err != nil {
 		if err.Error() == "Invalid role" {
-			http.HandleResponse(c, http.InvalidArgument, err.Error())
+			http.HandleErrorResponse(c, http.InvalidArgument, err.Error())
 			return
 		}
-		http.HandleResponse(c, http.InternalServerError, err.Error())
+		http.HandleErrorResponse(c, http.InternalServerError, err.Error())
 		return
 	}
 

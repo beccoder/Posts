@@ -40,11 +40,14 @@ func (p *PostsService) DeletePost(postId primitive.ObjectID) error {
 }
 
 func (p *PostsService) CreateComment(input Blogs.CommentModel) (primitive.ObjectID, error) {
-	_, err := p.repo.GetCommentById(input.ReplyCommentId)
-	if err != nil {
-		return primitive.ObjectID{}, errors.New("bad request: reply comment id doesnt exist")
+	if !input.ReplyCommentId.IsZero() {
+		_, err := p.repo.GetCommentById(input.ReplyCommentId)
+		if err != nil {
+			return primitive.ObjectID{}, errors.New("bad request: reply comment id doesnt exist")
+		}
 	}
-	_, err = p.repo.GetPostById(input.PostId)
+
+	_, err := p.repo.GetPostById(input.PostId)
 	if err != nil {
 		return primitive.ObjectID{}, errors.New("bad request: post id doesnt exist")
 	}
@@ -60,6 +63,13 @@ func (p *PostsService) GetCommentById(commentId primitive.ObjectID) (Blogs.Comme
 }
 
 func (p *PostsService) UpdateComment(commentId primitive.ObjectID, input Blogs.UpdateCommentRequest) error {
+	if !input.ReplyCommentId.IsZero() {
+		_, err := p.repo.GetCommentById(*input.ReplyCommentId)
+		if err != nil {
+			return errors.New("bad request: reply comment id doesnt exist")
+		}
+	}
+
 	return p.repo.UpdateComment(commentId, input)
 }
 
