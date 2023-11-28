@@ -2,7 +2,7 @@ include .env
 
 DB_STORAGE_FOLDER=.db-data
 
-all: test_var create_db_storage_folder build_image compose_up run_test prod_var run
+all: prod_var run
 
 run:
 	go run cmd/main.go

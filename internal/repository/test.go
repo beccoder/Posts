@@ -2,8 +2,11 @@ package repository
 
 import (
 	"Blogs"
+	"github.com/joho/godotenv"
 	"go.mongodb.org/mongo-driver/bson/primitive"
 	"go.mongodb.org/mongo-driver/mongo"
+	"log"
+	"os"
 )
 
 var (
@@ -74,6 +77,10 @@ var (
 )
 
 func StartTest() (*mongo.Client, string) {
+	err := godotenv.Load(".env")
+	if err != nil && !os.IsNotExist(err) {
+		log.Println("failed to load .env file")
+	}
 	cfg := Blogs.Load()
 
 	cfg.MakeMongoDBURL()

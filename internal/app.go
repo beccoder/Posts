@@ -17,7 +17,7 @@ import (
 // @version 1.0
 // @description Blogs Server in Go using Gin framework
 
-// @host localhost:8080
+// @host http://localhost:8080
 // @BasePath /
 
 // @securityDefinitions.apikey ApiKeyAuth

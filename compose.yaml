@@ -9,8 +9,13 @@ services:
     ports:
       - 27017:27017
     volumes:
-      - type: bind
-        source: .db-data
-        target: /data/db
+      - .db-data:/data/db
+  server:
+    build: ./
+    command: ./init.sh
+    ports:
+      - 8080:8080
+    depends_on:
+      - db
 volumes:
   .db-data:
