@@ -38,7 +38,7 @@ type Config struct {
 
 	MONGODB struct {
 		Protocol string `env:"MONGODB_PROTOCOL" envDefault:"mongodb"`
-		Host     string `env:"MONGODB_HOST" envDefault:"127.0.0.1"`
+		Host     string `env:"MONGODB_HOST" envDefault:"db"`
 		Port     int    `env:"MONGODB_PORT" envDefault:"27017"`
 		Username string `env:"MONGODB_USERNAME" envDefault:"admin"`
 		Password string `env:"MONGODB_PASSWORD" envDefault:"qwerty"`
